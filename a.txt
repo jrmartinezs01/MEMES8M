@@ -1,0 +1,158 @@
+# Análisis del Proyecto Java - DAW1
+
+## Estructura general del proyecto
+
+```
+proyecto/
+├── datos/
+│   ├── memes.txt
+│   ├── realidades.json
+│   └── soluciones.xml
+├── resultados/
+│   └── resultados.txt
+└── src/
+    └── (clases Java)
+```
+
+---
+
+## ¿Qué necesitas hacer en cada Historia de Usuario?
+
+---
+
+### HU1 - Verificación de ficheros de entrada
+
+**Objetivo:** Comprobar que existen los ficheros necesarios antes de arrancar.
+
+**Qué implementar:**
+- Usar la clase `File` para comprobar si existe el directorio `datos/`
+- Comprobar si existen los tres ficheros: `memes.txt`, `realidades.json`, `soluciones.xml`
+- Si alguno **no existe** → mostrar mensaje de error por consola y llamar a `System.exit(0)` o similar
+
+**Conceptos Java:** `File.exists()`, `File.isDirectory()`
+
+---
+
+### HU2 - Verificación/creación del fichero de resultados
+
+**Objetivo:** Asegurarse de que existe el fichero donde se guardarán las puntuaciones.
+
+**Qué implementar:**
+- Comprobar si existe el directorio `resultados/` → si no existe, crearlo con `mkdir()`
+- Comprobar si existe `resultados.txt` → si no existe, crearlo con `createNewFile()`
+
+**Conceptos Java:** `File.mkdir()`, `File.createNewFile()`
+
+---
+
+### HU3 - Lectura de memes.txt
+
+**Objetivo:** Cargar los memes en memoria.
+
+**Qué implementar:**
+- Leer el fichero `memes.txt` línea a línea con `BufferedReader`
+- Guardar cada meme en una **lista** (`ArrayList<String>`)
+- Cada línea del fichero = un meme
+
+**Conceptos Java:** `BufferedReader`, `FileReader`, `ArrayList`
+
+---
+
+### HU4 - Lectura de realidades.json y soluciones.xml
+
+**Objetivo:** Cargar las realidades y las soluciones en memoria.
+
+**Qué implementar:**
+- **`realidades.json`** → parsear con una librería JSON (por ejemplo `org.json` o `Gson`) y guardar en un `ArrayList` o `HashMap`
+- **`soluciones.xml`** → parsear con `DocumentBuilder` (DOM) o `SAXParser` y relacionar cada meme con su realidad correcta, guardarlo en un `HashMap<Integer, Integer>` (índice meme → índice realidad)
+
+**Conceptos Java:** Parseo JSON, parseo XML con DOM/SAX, `HashMap`
+
+---
+
+### HU5 - Mostrar meme aleatorio y lista de realidades
+
+**Objetivo:** Presentar al usuario el meme y las opciones.
+
+**Qué implementar:**
+- Elegir un meme al azar con `Random` sobre el índice de la lista
+- **Opcional:** llevar un `ArrayList` de índices ya usados y excluirlos del sorteo
+- Mostrar el meme por consola
+- Mostrar todas las realidades numeradas (recorrer la lista con un bucle)
+
+**Conceptos Java:** `Random.nextInt()`, bucle `for`, control de repetidos
+
+---
+
+### HU6 - El usuario elige la respuesta
+
+**Objetivo:** Recoger la respuesta y validarla.
+
+**Qué implementar:**
+- Leer la opción del usuario con `Scanner`
+- Validar que es un número dentro del rango válido
+- Consultar en el `HashMap` de soluciones si el índice elegido es el correcto
+- Si es correcto → sumar 1 punto a una variable `puntuacion`
+- Mostrar mensaje de acierto o fallo
+
+**Conceptos Java:** `Scanner`, comparación de valores en `HashMap`
+
+---
+
+### HU7 - Marcador y bucle de 5 memes
+
+**Objetivo:** Repetir el juego 5 veces mostrando la puntuación tras cada ronda.
+
+**Qué implementar:**
+- Un bucle `for` de 5 iteraciones que englobe HU5 + HU6
+- Al final de cada ronda mostrar: `"Puntuación actual: X/5"`
+
+**Conceptos Java:** bucle `for`, variable contador
+
+---
+
+### HU8 - Mostrar puntuación final
+
+**Objetivo:** Informar al usuario de su resultado al terminar.
+
+**Qué implementar:**
+- Al salir del bucle, mostrar la puntuación final con un mensaje claro
+- Ejemplo: `"Has conseguido 3 de 5 puntos"`
+
+---
+
+### HU9 - Registrar puntuación si está en el top 3
+
+**Objetivo:** Guardar al usuario si merece estar en el ranking.
+
+**Qué implementar:**
+- Leer el fichero `resultados.txt` y cargar las puntuaciones existentes en una lista
+- Comprobar si la puntuación del usuario es mayor que alguna de las 3 mejores
+- Si sí → pedir el nombre con `Scanner`
+- Añadir la nueva entrada, ordenar la lista (por ejemplo con `Collections.sort()`)
+- Guardar la lista actualizada en `resultados.txt` con `BufferedWriter`
+
+**Conceptos Java:** `BufferedWriter`, `Collections.sort()`, lectura y escritura de ficheros
+
+---
+
+### HU10 - Mostrar ranking y despedida
+
+**Objetivo:** Mostrar el top de puntuaciones y cerrar la aplicación.
+
+**Qué implementar:**
+- Leer `resultados.txt` (o usar la lista ya cargada en HU9)
+- Mostrar las mejores puntuaciones con nombre y puntos formateados
+- Mostrar mensaje de despedida
+
+---
+
+## Resumen de clases sugeridas
+
+| Clase | Responsabilidad |
+|---|---|
+| `Main` | Punto de entrada, controla el flujo general |
+| `GestorFicheros` | HU1, HU2, lectura/escritura de ficheros |
+| `LectorDatos` | HU3, HU4 - parseo de memes, realidades y soluciones |
+| `Juego` | HU5, HU6, HU7, HU8 - lógica del juego |
+| `Ranking` | HU9, HU10 - gestión de puntuaciones |
