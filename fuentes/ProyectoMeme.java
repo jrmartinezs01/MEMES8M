@@ -16,6 +16,8 @@ public class ProyectoMeme {
         }
         
         System.out.println("✅ Archivos verificados correctamente. El programa puede continuar.");
+        
+        // Aquí tus compañeros añadirán el resto del código (HU2, HU3, etc.)
     }
     
     /**
