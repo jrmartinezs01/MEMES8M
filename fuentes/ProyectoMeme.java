@@ -1,12 +1,7 @@
 import java.nio.file.*;
 import java.util.*;
+import java.io.IOException;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-public class meme {
-    
-=======
-=======
 /**
  * Clase principal del juego "Bulo o Realidad".
  * El jugador tiene que identificar que realidad desmiente cada bulo sobre igualdad de genero.
@@ -14,7 +9,6 @@ public class meme {
  *
  * @version 1.0
  */
->>>>>>> 520ac6ea3b0a0ea97323541ce2dac54b59fc4da1
 public class ProyectoMeme {
 
     /** Lista con los textos de los bulos leidos de memes.txt */
@@ -30,7 +24,6 @@ public class ProyectoMeme {
     static Scanner lecturaDelTeclado = new Scanner(System.in);
 
     /**
-<<<<<<< HEAD
      * Metodo principal. Lanza todas las historias de usuario en orden.
      *
      * @param args argumentos de la linea de comandos (no se usan)
@@ -39,10 +32,19 @@ public class ProyectoMeme {
     public static void main(String[] args) throws Exception {
         System.out.println("=== Bulo o Realidad ===");
 
-        hu1();
+        // HU1 - Comprobar archivos iniciales
+        if (!comprobarArchivosIniciales()) {
+            System.out.println("❌ El programa no puede continuar. Corrige los errores.");
+            return;
+        }
+
         hu2();
+        
+        // HU4 - Leer realidades
+        listaDeRealidades = (ArrayList<String>) leerRealidades("datos/realidades.json");
+        System.out.println("✅ Realidades cargadas: " + listaDeRealidades.size());
+        
         hu3();
-        hu4();
         cargarSoluciones();
 
         Integer puntosFinales = jugar();
@@ -53,19 +55,15 @@ public class ProyectoMeme {
 
         lecturaDelTeclado.close();
     }
-<<<<<<< HEAD
->>>>>>> a311a3897c6e4ca4dd0bf93eb0746dc9adf5543f
-}
-=======
 
     /**
      * HU1 - Comprueba que existe el directorio datos y que contiene
      * los tres ficheros necesarios: memes.txt, realidades.json y soluciones.xml.
      * Si falta algo detiene el programa.
      *
-     * @throws Exception si el directorio datos no existe
+     * @return true si todo existe, false si falta algo
      */
-     public static boolean comprobarArchivosIniciales() {
+    public static boolean comprobarArchivosIniciales() {
         // Ruta a la carpeta datos (está al mismo nivel que fuentes)
         Path rutaDatos = Paths.get("datos");
         
@@ -102,8 +100,9 @@ public class ProyectoMeme {
         }
         
         return todoCorrecto;
-     }
-=======
+    }
+
+    /**
      * HU2 - Comprueba si existe el directorio resultados y el fichero mejores.txt.
      * Si no existen los crea.
      *
@@ -120,6 +119,44 @@ public class ProyectoMeme {
             Files.createFile(rutaFicheroMejores);
     }
 
-   
+    /**
+     * HU3 - Lee el fichero de memes y genera una estructura de datos
+     */
+    public static void hu3() throws Exception {
+        Path rutaMemes = Paths.get("datos/memes.txt");
+        listaDeBulos = (ArrayList<String>) Files.readAllLines(rutaMemes);
+        System.out.println("✅ Bulos cargados: " + listaDeBulos.size());
+    }
+
+    /**
+     * HU4 - Lee el fichero de realidades y genera una estructura de datos (Lista)
+     * @param ruta Ruta del archivo realidades.json
+     * @return Lista con las realidades
+     * @throws IOException si hay error al leer el archivo
+     */
+    public static List<String> leerRealidades(String ruta) throws IOException {
+        Path path = Paths.get(ruta);
+        List<String> lineas = Files.readAllLines(path);
+        List<String> realidades = new ArrayList<>();
+        
+        System.out.println("\n📖 Leyendo archivo: " + ruta);
+        
+        // Procesar cada línea (asumiendo que cada línea es una realidad)
+        for (String linea : lineas) {
+            // Limpiar la línea (quitar espacios extras)
+            linea = linea.trim();
+            
+            // Solo añadir si no está vacía
+            if (!linea.isEmpty()) {
+                realidades.add(linea);
+                System.out.println("   → Realidad añadida: " + linea);
+            }
+        }
+        
+        System.out.println("📊 Total realidades cargadas: " + realidades.size());
+        return realidades;
+    }
+
+    // Los demás métodos (cargarSoluciones, jugar, hu8, hu9, hu10) continúan igual...
 }
->>>>>>> 3b480ff1f2506c0123266ce202e0ccb5edf8e177
+
