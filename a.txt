@@ -1,158 +1,322 @@
-# Análisis del Proyecto Java - DAW1
+================================================================================
+  ProyectoMeme - Documentacion tecnica del codigo
+  Proyecto Java - 1 DAW | Curso 2025-2026
+================================================================================
 
-## Estructura general del proyecto
 
-```
-proyecto/
-├── datos/
-│   ├── memes.txt
-│   ├── realidades.json
-│   └── soluciones.xml
-├── resultados/
-│   └── resultados.txt
-└── src/
-    └── (clases Java)
-```
+1. DESCRIPCION GENERAL DEL PROYECTO
+================================================================================
 
----
+ProyectoMeme es un juego de preguntas en Java que se ejecuta por consola.
+El objetivo es que el jugador identifique que dato real (realidad) desmiente
+cada bulo sobre igualdad de genero que aparece en pantalla.
+Se juegan 5 rondas y al final se guarda la puntuacion si esta entre las
+3 mejores de todos los tiempos.
 
-## ¿Qué necesitas hacer en cada Historia de Usuario?
 
----
+2. ESTRUCTURA DE FICHEROS DEL PROYECTO
+================================================================================
 
-### HU1 - Verificación de ficheros de entrada
+El proyecto necesita la siguiente estructura de carpetas y ficheros:
 
-**Objetivo:** Comprobar que existen los ficheros necesarios antes de arrancar.
+  MEMES8M/
+    datos/
+      memes.txt           <- bulos del juego
+      realidades.json     <- datos reales con fuentes oficiales
+      soluciones.xml      <- relacion bulo-respuesta correcta
+    fuentes/
+      ProyectoMeme.java   <- codigo fuente
+    resultados/
+      mejores.txt         <- ranking de puntuaciones
 
-**Qué implementar:**
-- Usar la clase `File` para comprobar si existe el directorio `datos/`
-- Comprobar si existen los tres ficheros: `memes.txt`, `realidades.json`, `soluciones.xml`
-- Si alguno **no existe** → mostrar mensaje de error por consola y llamar a `System.exit(0)` o similar
 
-**Conceptos Java:** `File.exists()`, `File.isDirectory()`
+2.1 Formato de memes.txt
+--------------------------------------------------------------------------------
+Cada linea contiene un numero de id seguido de un espacio y el texto del bulo:
 
----
+  1 La brecha salarial no existe, es un mito
+  2 Las mujeres cobran menos porque trabajan menos horas
 
-### HU2 - Verificación/creación del fichero de resultados
+El numero se usa internamente para relacionar cada bulo con su solucion
+en soluciones.xml.
 
-**Objetivo:** Asegurarse de que existe el fichero donde se guardarán las puntuaciones.
 
-**Qué implementar:**
-- Comprobar si existe el directorio `resultados/` → si no existe, crearlo con `mkdir()`
-- Comprobar si existe `resultados.txt` → si no existe, crearlo con `createNewFile()`
+2.2 Formato de realidades.json
+--------------------------------------------------------------------------------
+Fichero JSON con un array de objetos. Cada objeto tiene tres campos:
+  - id: numero identificador
+  - texto: la realidad que desmiente el bulo
+  - fuente: URL de la fuente oficial
 
-**Conceptos Java:** `File.mkdir()`, `File.createNewFile()`
+Ejemplo:
+  [
+    {
+      "id": 1,
+      "texto": "Eurostat y el INE confirman que en Espana las mujeres cobran...",
+      "fuente": "https://www.ine.es/..."
+    },
+    ...
+  ]
 
----
 
-### HU3 - Lectura de memes.txt
+2.3 Formato de soluciones.xml
+--------------------------------------------------------------------------------
+Fichero XML que relaciona cada bulo con su respuesta correcta y cuatro
+respuestas incorrectas:
 
-**Objetivo:** Cargar los memes en memoria.
+  <?xml version="1.0" encoding="UTF-8"?>
+  <memes>
+    <meme>
+      <nombre>1</nombre>
+      <solucion>Texto de la respuesta correcta</solucion>
+      <otrasolucion>Respuesta incorrecta 1</otrasolucion>
+      <otrasolucion>Respuesta incorrecta 2</otrasolucion>
+      <otrasolucion>Respuesta incorrecta 3</otrasolucion>
+      <otrasolucion>Respuesta incorrecta 4</otrasolucion>
+    </meme>
+  </memes>
 
-**Qué implementar:**
-- Leer el fichero `memes.txt` línea a línea con `BufferedReader`
-- Guardar cada meme en una **lista** (`ArrayList<String>`)
-- Cada línea del fichero = un meme
 
-**Conceptos Java:** `BufferedReader`, `FileReader`, `ArrayList`
+2.4 Formato de mejores.txt
+--------------------------------------------------------------------------------
+Cada linea contiene el nombre del jugador y su puntuacion separados por coma:
 
----
+  Maria,5
+  Carlos,4
+  Ana,3
 
-### HU4 - Lectura de realidades.json y soluciones.xml
 
-**Objetivo:** Cargar las realidades y las soluciones en memoria.
+3. ESTRUCTURAS DE DATOS
+================================================================================
 
-**Qué implementar:**
-- **`realidades.json`** → parsear con una librería JSON (por ejemplo `org.json` o `Gson`) y guardar en un `ArrayList` o `HashMap`
-- **`soluciones.xml`** → parsear con `DocumentBuilder` (DOM) o `SAXParser` y relacionar cada meme con su realidad correcta, guardarlo en un `HashMap<Integer, Integer>` (índice meme → índice realidad)
+El programa usa tres listas globales de tipo ArrayList<String> para guardar
+en memoria los datos leidos de los ficheros. Son estaticas para que todos
+los metodos puedan acceder a ellas sin pasarlas como parametro.
 
-**Conceptos Java:** Parseo JSON, parseo XML con DOM/SAX, `HashMap`
+  Variable               | Tipo              | Contenido
+  -----------------------|-------------------|-----------------------------------
+  listaDeBulos           | ArrayList<String> | Texto de cada bulo (memes.txt)
+  listaDeRealidades      | ArrayList<String> | Texto de cada realidad (realidades.json)
+  listaDeSoluciones      | ArrayList<String> | Respuesta correcta de cada bulo (soluciones.xml)
+  lecturaDelTeclado      | Scanner           | Lee lo que escribe el usuario
 
----
+La clave del diseno es que los tres ArrayList comparten indice: el bulo en
+la posicion 0 de listaDeBulos tiene su respuesta correcta en la posicion 0
+de listaDeSoluciones. Esto simplifica la comprobacion de respuestas sin
+necesidad de buscar por id.
 
-### HU5 - Mostrar meme aleatorio y lista de realidades
 
-**Objetivo:** Presentar al usuario el meme y las opciones.
+4. DESCRIPCION DETALLADA DE LOS METODOS
+================================================================================
 
-**Qué implementar:**
-- Elegir un meme al azar con `Random` sobre el índice de la lista
-- **Opcional:** llevar un `ArrayList` de índices ya usados y excluirlos del sorteo
-- Mostrar el meme por consola
-- Mostrar todas las realidades numeradas (recorrer la lista con un bucle)
+4.1 main()
+--------------------------------------------------------------------------------
+Es el metodo de arranque del programa. Llama a todos los demas metodos
+en el orden correcto:
 
-**Conceptos Java:** `Random.nextInt()`, bucle `for`, control de repetidos
+  - Ejecuta hu1() y hu2() para verificar que los ficheros existen.
+  - Llama a hu3(), hu4() y cargarSoluciones() para cargar los datos en memoria.
+  - Llama a jugar() que contiene el bucle del juego y devuelve los puntos.
+  - Finalmente hu8(), hu9() y hu10() muestran el resultado y gestionan el ranking.
 
----
 
-### HU6 - El usuario elige la respuesta
+4.2 hu1() - Comprobacion de ficheros de entrada
+--------------------------------------------------------------------------------
+Verifica que existe el directorio datos/ y que dentro estan los tres ficheros
+necesarios. Pasos que sigue:
 
-**Objetivo:** Recoger la respuesta y validarla.
+  - Obtiene un Path al directorio datos/ con Paths.get("datos").
+  - Comprueba si es un directorio con Files.isDirectory().
+    Si no existe lanza una excepcion.
+  - Lista todos los archivos del directorio con Files.list().toList().
+  - Guarda los nombres de los archivos encontrados en una lista.
+  - Comprueba si memes.txt, realidades.json y soluciones.xml estan en esa lista.
+  - Si falta alguno informa al usuario y llama a System.exit(1) para detener
+    el programa.
 
-**Qué implementar:**
-- Leer la opción del usuario con `Scanner`
-- Validar que es un número dentro del rango válido
-- Consultar en el `HashMap` de soluciones si el índice elegido es el correcto
-- Si es correcto → sumar 1 punto a una variable `puntuacion`
-- Mostrar mensaje de acierto o fallo
 
-**Conceptos Java:** `Scanner`, comparación de valores en `HashMap`
+4.3 hu2() - Creacion del directorio de resultados
+--------------------------------------------------------------------------------
+Comprueba si existe la carpeta resultados/ y el fichero mejores.txt.
+Si no existen los crea.
 
----
+  - Usa Files.exists() para comprobar si ya existen.
+  - Usa Files.createDirectories() para crear la carpeta si hace falta.
+  - Usa Files.createFile() para crear el fichero vacio si hace falta.
 
-### HU7 - Marcador y bucle de 5 memes
 
-**Objetivo:** Repetir el juego 5 veces mostrando la puntuación tras cada ronda.
+4.4 hu3() - Carga de memes
+--------------------------------------------------------------------------------
+Lee el fichero datos/memes.txt con Files.readAllLines() y recorre cada linea.
+Para cada linea busca el primer espacio con indexOf(' ') y extrae el texto
+que hay despues con substring(). Ese texto se anade a listaDeBulos.
 
-**Qué implementar:**
-- Un bucle `for` de 5 iteraciones que englobe HU5 + HU6
-- Al final de cada ronda mostrar: `"Puntuación actual: X/5"`
 
-**Conceptos Java:** bucle `for`, variable contador
+4.5 hu4() - Carga de realidades
+--------------------------------------------------------------------------------
+Lee el fichero datos/realidades.json con Files.readAllLines() y busca las
+lineas que empiezan por la clave "texto". Cuando encuentra una, llama al
+metodo auxiliar extraerValorJson() para sacar el contenido y lo anade a
+listaDeRealidades.
 
----
+No usa ninguna libreria JSON externa. El parseo es manual aprovechando que
+el fichero tiene un formato fijo y cada campo ocupa una linea.
 
-### HU8 - Mostrar puntuación final
 
-**Objetivo:** Informar al usuario de su resultado al terminar.
+4.6 cargarSoluciones() - Carga de soluciones
+--------------------------------------------------------------------------------
+Lee el fichero datos/soluciones.xml buscando las lineas que contienen la
+etiqueta <solucion>. Cuando encuentra una, elimina las etiquetas de apertura
+y cierre con replace() y guarda el texto en listaDeSoluciones.
 
-**Qué implementar:**
-- Al salir del bucle, mostrar la puntuación final con un mensaje claro
-- Ejemplo: `"Has conseguido 3 de 5 puntos"`
+Las etiquetas <otrasolucion> se ignoran porque en este diseno simplificado
+solo se usa la respuesta correcta para comprobar si el jugador ha acertado.
 
----
 
-### HU9 - Registrar puntuación si está en el top 3
+4.7 jugar() - Bucle principal del juego (HU5 + HU6 + HU7)
+--------------------------------------------------------------------------------
+Es el metodo mas largo. Gestiona el bucle de 5 rondas y devuelve los puntos
+acumulados. Funciona asi:
 
-**Objetivo:** Guardar al usuario si merece estar en el ranking.
+  - Crea un ArrayList llamado indicesDeMemesYaUsados para recordar que bulos
+    ya han salido.
+  - En cada ronda genera un indice aleatorio con Random.nextInt() y repite
+    si ya estaba en la lista de usados (bucle do-while).
+  - Muestra el bulo elegido y mezcla las realidades con Collections.shuffle()
+    para que no salgan siempre en el mismo orden.
+  - Lee la respuesta del usuario con Scanner. Si el usuario no escribe un
+    numero, el catch del NumberFormatException lo trata como fallo sin romper
+    el programa.
+  - Compara el texto de la realidad elegida con el texto de listaDeSoluciones
+    en el mismo indice que el bulo. Si son iguales suma un punto.
+  - Muestra el marcador al final de cada ronda.
 
-**Qué implementar:**
-- Leer el fichero `resultados.txt` y cargar las puntuaciones existentes en una lista
-- Comprobar si la puntuación del usuario es mayor que alguna de las 3 mejores
-- Si sí → pedir el nombre con `Scanner`
-- Añadir la nueva entrada, ordenar la lista (por ejemplo con `Collections.sort()`)
-- Guardar la lista actualizada en `resultados.txt` con `BufferedWriter`
 
-**Conceptos Java:** `BufferedWriter`, `Collections.sort()`, lectura y escritura de ficheros
+4.8 hu8() - Puntuacion final
+--------------------------------------------------------------------------------
+Metodo sencillo que recibe los puntos como parametro y los muestra por consola
+formateados.
 
----
 
-### HU10 - Mostrar ranking y despedida
+4.9 hu9() - Gestion del ranking
+--------------------------------------------------------------------------------
+Comprueba si el jugador entra en el top 3 y si es asi guarda su puntuacion.
+Pasos:
 
-**Objetivo:** Mostrar el top de puntuaciones y cerrar la aplicación.
+  - Llama a leerRanking() para obtener las entradas actuales del fichero.
+  - Si hay menos de 3 entradas el jugador entra automaticamente.
+  - Si ya hay 3 entradas compara la puntuacion del jugador con cada una.
+    Si supera alguna, entra.
+  - Si entra pide el nombre, anade la nueva entrada y ordena la lista de
+    mayor a menor usando burbuja.
+  - Recorta la lista a 3 elementos y llama a guardarRanking() para escribir
+    el fichero.
 
-**Qué implementar:**
-- Leer `resultados.txt` (o usar la lista ya cargada en HU9)
-- Mostrar las mejores puntuaciones con nombre y puntos formateados
-- Mostrar mensaje de despedida
 
----
+4.10 hu10() - Mostrar ranking y despedida
+--------------------------------------------------------------------------------
+Lee el fichero de ranking con leerRanking(), recorre la lista y muestra cada
+entrada con su posicion. Si la lista esta vacia muestra un mensaje informativo.
 
-## Resumen de clases sugeridas
 
-| Clase | Responsabilidad |
-|---|---|
-| `Main` | Punto de entrada, controla el flujo general |
-| `GestorFicheros` | HU1, HU2, lectura/escritura de ficheros |
-| `LectorDatos` | HU3, HU4 - parseo de memes, realidades y soluciones |
-| `Juego` | HU5, HU6, HU7, HU8 - lógica del juego |
-| `Ranking` | HU9, HU10 - gestión de puntuaciones |
+4.11 extraerValorJson() - Metodo auxiliar
+--------------------------------------------------------------------------------
+Recibe una linea JSON del tipo "clave": "valor" y devuelve solo el texto del
+valor. Funciona buscando la posicion de los dos puntos y luego los indices
+de las comillas de apertura y cierre del valor con indexOf() y lastIndexOf().
+
+
+4.12 leerRanking() y guardarRanking()
+--------------------------------------------------------------------------------
+leerRanking() lee todas las lineas de resultados/mejores.txt con
+Files.readAllLines(), filtra las vacias y devuelve un ArrayList<String>
+con las entradas en formato "nombre,puntos".
+
+guardarRanking() recibe la lista actualizada y la escribe de golpe en el
+fichero con Files.write(), sobreescribiendo el contenido anterior.
+
+
+5. FLUJO COMPLETO DEL PROGRAMA
+================================================================================
+
+main()
+  |
+  |-- hu1()  --> Comprueba directorio datos/ y los 3 ficheros
+  |              Si falta algo: informa y System.exit(1)
+  |
+  |-- hu2()  --> Crea resultados/ y mejores.txt si no existen
+  |
+  |-- hu3()  --> Lee memes.txt         -> listaDeBulos
+  |-- hu4()  --> Lee realidades.json   -> listaDeRealidades
+  |-- cargarSoluciones() --> Lee soluciones.xml -> listaDeSoluciones
+  |
+  |-- jugar() --> 5 rondas:
+  |       |-- Elige bulo aleatorio sin repetir          (HU5)
+  |       |-- Muestra lista numerada de realidades      (HU5)
+  |       |-- Lee respuesta del usuario                 (HU6)
+  |       |-- Comprueba y suma punto si acierta         (HU6)
+  |       |-- Muestra marcador                          (HU7)
+  |       Devuelve puntosAcumulados
+  |
+  |-- hu8()  --> Muestra puntuacion final
+  |-- hu9()  --> Comprueba top 3, guarda si entra
+  |-- hu10() --> Muestra ranking y se despide
+
+
+6. RESUMEN DE HISTORIAS DE USUARIO
+================================================================================
+
+  HU   | Metodo             | Descripcion
+  -----|--------------------|-------------------------------------------------
+  HU1  | hu1()              | Verifica directorio datos/ y los 3 ficheros
+  HU2  | hu2()              | Crea resultados/mejores.txt si no existe
+  HU3  | hu3()              | Lee memes.txt y llena listaDeBulos
+  HU4  | hu4()              | Lee realidades.json y llena listaDeRealidades
+  HU5  | jugar()            | Muestra bulo aleatorio y lista de realidades
+  HU6  | jugar()            | Lee respuesta y suma punto si acierta
+  HU7  | jugar()            | Muestra marcador, repite hasta 5 rondas
+  HU8  | hu8()              | Muestra la puntuacion final
+  HU9  | hu9()              | Guarda la puntuacion si esta entre las 3 mejores
+  HU10 | hu10()             | Muestra el ranking y se despide
+
+
+7. NOTAS TECNICAS
+================================================================================
+
+7.1 Por que se usan ArrayList<String> en lugar de clases
+--------------------------------------------------------------------------------
+Para mantener el codigo al nivel de 1 DAW se ha optado por guardar los datos
+como cadenas de texto directamente en ArrayList. Una solucion mas avanzada
+usaria clases como Meme, Realidad y Solucion con sus atributos y getters,
+pero eso añade complejidad innecesaria para este proyecto.
+
+
+7.2 Relacion por indice entre listas
+--------------------------------------------------------------------------------
+Los tres ArrayList se cargan en el mismo orden que aparecen en sus ficheros.
+Esto permite relacionar bulo y solucion usando el mismo indice, sin necesidad
+de buscar por id.
+
+
+7.3 Parseo manual de JSON y XML
+--------------------------------------------------------------------------------
+No se usa ninguna libreria externa. El JSON y el XML se leen linea a linea
+buscando patrones fijos ("texto", <solucion>). Esto funciona porque los
+ficheros tienen un formato conocido y constante.
+
+
+7.4 Wrappers en lugar de tipos primitivos
+--------------------------------------------------------------------------------
+Se usa Integer en lugar de int y Boolean en lugar de boolean en todos los
+metodos y variables. Java convierte automaticamente entre ambos tipos
+(autoboxing/unboxing).
+
+
+7.5 Ordenacion por burbuja
+--------------------------------------------------------------------------------
+El ranking se ordena usando el algoritmo de burbuja porque es el mas sencillo
+de entender para alumnos de primer curso. Una alternativa mas eficiente seria
+Collections.sort() con un comparador, pero la burbuja hace el mismo trabajo
+para listas de solo 3 o 4 elementos.
+
+================================================================================
