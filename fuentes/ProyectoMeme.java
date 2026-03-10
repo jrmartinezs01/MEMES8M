@@ -12,7 +12,6 @@ public class meme {
  * El jugador tiene que identificar que realidad desmiente cada bulo sobre igualdad de genero.
  * Se juegan 5 rondas y al final se guarda la puntuacion si esta entre las 3 mejores.
  *
- * @author Alumno
  * @version 1.0
  */
 >>>>>>> 520ac6ea3b0a0ea97323541ce2dac54b59fc4da1
@@ -31,6 +30,7 @@ public class ProyectoMeme {
     static Scanner lecturaDelTeclado = new Scanner(System.in);
 
     /**
+<<<<<<< HEAD
      * Metodo principal. Lanza todas las historias de usuario en orden.
      *
      * @param args argumentos de la linea de comandos (no se usan)
@@ -103,3 +103,23 @@ public class ProyectoMeme {
         
         return todoCorrecto;
      }
+=======
+     * HU2 - Comprueba si existe el directorio resultados y el fichero mejores.txt.
+     * Si no existen los crea.
+     *
+     * @throws Exception si hay un error al crear el directorio o el fichero
+     */
+    public static void hu2() throws Exception {
+        Path rutaDirectorioResultados = Paths.get("resultados");
+        Path rutaFicheroMejores = Paths.get("resultados/mejores.txt");
+
+        if (!Files.exists(rutaDirectorioResultados))
+            Files.createDirectories(rutaDirectorioResultados);
+
+        if (!Files.exists(rutaFicheroMejores))
+            Files.createFile(rutaFicheroMejores);
+    }
+
+   
+}
+>>>>>>> 3b480ff1f2506c0123266ce202e0ccb5edf8e177
