@@ -220,4 +220,47 @@ public class ProyectoMeme {
 
         return indiceBulo;
     }
+
+        // =========================================================================
+    // HU6 - Leer respuesta y comprobar
+    // =========================================================================
+ 
+    /**
+     * HU6 - Pide al usuario que elija una realidad (número entre 1 y N).
+     * Valida la entrada y repite si es incorrecta.
+     *
+     * @param totalRealidades número de opciones disponibles
+     * @return índice elegido por el usuario (0-based)
+     */
+    public static int pedirRespuestaUsuario(int totalRealidades) {
+        int eleccion = -1;
+        while (eleccion < 1 || eleccion > totalRealidades) {
+            System.out.print("Tu elección (1-" + totalRealidades + "): ");
+            String entrada = lecturaDelTeclado.nextLine().trim();
+            try {
+                eleccion = Integer.parseInt(entrada);
+                if (eleccion < 1 || eleccion > totalRealidades) {
+                    System.out.println("⚠️  Número fuera de rango. Elige entre 1 y " + totalRealidades + ".");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("⚠️  Entrada no válida. Introduce un número.");
+            }
+        }
+        return eleccion - 1; // convertir a 0-based
+    }
+ 
+    /**
+     * HU6 - Comprueba si la respuesta del usuario es correcta consultando mapaSoluciones.
+     *
+     * @param indiceBulo       índice del bulo mostrado (0-based)
+     * @param respuestaUsuario índice de la realidad elegida (0-based)
+     * @return true si es correcta, false si no
+     */
+    public static boolean comprobarRespuesta(int indiceBulo, int respuestaUsuario) {
+        if (!mapaSoluciones.containsKey(indiceBulo)) {
+            System.out.println("⚠️  No hay solución registrada para este bulo.");
+            return false;
+        }
+        return mapaSoluciones.get(indiceBulo) == respuestaUsuario;
+    }
 }
