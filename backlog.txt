@@ -17,6 +17,6 @@ TT5    juanra       terminado
 TT6    juanra       terminado
 TT7
 
-Manual de instalacion
+Manual de instalacion      Juanrra 
 Manual de usuario
 Manual del programador 
