@@ -3,163 +3,145 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
- * Clase principal del juego "Bulo o Realidad".
- * El jugador tiene que identificar qué realidad desmiente cada bulo sobre igualdad de género.
- *
- * @version 1.0
+ * Juego "Bulo o Realidad".
+ * El jugador identifica qué realidad desmiente cada bulo.
  */
 public class ProyectoMeme {
 
-    /** Lista con los textos de los bulos leídos de memes.txt */
-    static ArrayList<String> listaDeBulos = new ArrayList<>();
-
-    /** Lista con los textos de las realidades leídas de realidades.json */
+    // Listas con los datos leídos de los ficheros
+    static ArrayList<String> listaDeBulos      = new ArrayList<>();
     static ArrayList<String> listaDeRealidades = new ArrayList<>();
 
-    /** Scanner para leer lo que escribe el usuario por teclado */
-    static Scanner lecturaDelTeclado = new Scanner(System.in);
+    // Mapa soluciones: clave = número de bulo, valor = número de realidad correcta
+    // Usamos Integer (wrapper) en lugar de int porque HashMap lo requiere
+    static HashMap<Integer, Integer> mapaSoluciones = new HashMap<>();
 
-    /** Conjunto de índices de bulos ya mostrados para evitar repeticiones (HU5 opcional) */
-    static final Set<Integer> bulosUsados = new HashSet<>();
+    // Para leer lo que escribe el usuario
+    static Scanner teclado = new Scanner(System.in);
 
-    /**
-     * Método principal. Lanza las historias de usuario HU1 a HU5.
-     *
-     * @param args argumentos de la línea de comandos (no se usan)
-     * @throws Exception si hay algún error leyendo o escribiendo ficheros
-     */
+    // Para no repetir bulos ya mostrados
+    static ArrayList<Integer> bulosUsados = new ArrayList<>();
+
+    // -------------------------------------------------------------------------
+    // MAIN
+    // -------------------------------------------------------------------------
     public static void main(String[] args) throws Exception {
+
         System.out.println("=== Bulo o Realidad ===");
 
-        // HU1 - Comprobar archivos iniciales
+        // HU1 - Comprobar que existen los ficheros necesarios
         if (!comprobarArchivosIniciales()) {
-            System.out.println("❌ El programa no puede continuar. Corrige los errores.");
+            System.out.println("El programa no puede continuar.");
             return;
         }
 
-        // HU2 - Crear directorio y fichero de resultados si no existen
+        // HU2 - Crear carpeta resultados y mejores.txt si no existen
         hu2();
 
-        // HU3 - Leer memes
+        // HU3 - Leer los bulos del fichero memes.txt
         hu3();
 
-        // HU4 - Leer realidades
+        // HU4 - Leer las realidades del fichero realidades.json
         listaDeRealidades = leerRealidades("datos/realidades.json");
-        System.out.println("✅ Realidades cargadas: " + listaDeRealidades.size());
+        System.out.println("Realidades cargadas: " + listaDeRealidades.size());
+
+        // Leer las soluciones del fichero soluciones.xml
+        mapaSoluciones = leerSoluciones("datos/soluciones.xml");
+        System.out.println("Soluciones cargadas: " + mapaSoluciones.size());
 
         // HU5 - Mostrar un bulo al azar y la lista de realidades
-        mostrarBuloYRealidades(listaDeBulos, listaDeRealidades);
+        int indiceBulo = mostrarBuloYRealidades(listaDeBulos, listaDeRealidades);
 
-        lecturaDelTeclado.close();
+        // HU6 - Pedir respuesta al usuario y comprobarla
+        if (indiceBulo != -1) {
+            int respuesta = pedirRespuestaUsuario(listaDeRealidades.size());
+            boolean acierto = comprobarRespuesta(indiceBulo, respuesta);
+
+            if (acierto) {
+                System.out.println("¡Correcto!");
+            } else {
+                // Mostrar cuál era la respuesta correcta
+                Integer correcta = mapaSoluciones.get(indiceBulo);
+                System.out.println("Incorrecto. La respuesta correcta era la " + (correcta + 1));
+            }
+        }
+
+        teclado.close();
     }
 
-    // =========================================================================
-    // HU1
-    // =========================================================================
-
-    /**
-     * HU1 - Comprueba que existe el directorio datos y que contiene
-     * los tres ficheros necesarios: memes.txt, realidades.json y soluciones.xml.
-     * Si falta algo informa al usuario y devuelve false.
-     *
-     * @return true si todo existe, false si falta algo
-     */
+    // -------------------------------------------------------------------------
+    // HU1 - Comprobar que existe la carpeta datos y los tres ficheros
+    // -------------------------------------------------------------------------
     public static boolean comprobarArchivosIniciales() {
-        Path rutaDatos = Paths.get("datos");
 
-        if (!Files.exists(rutaDatos)) {
+        Path carpetaDatos = Paths.get("datos");
+
+        if (!Files.exists(carpetaDatos) || !Files.isDirectory(carpetaDatos)) {
             System.out.println("ERROR: No existe la carpeta 'datos'");
             return false;
         }
 
-        if (!Files.isDirectory(rutaDatos)) {
-            System.out.println("ERROR: 'datos' no es una carpeta");
-            return false;
-        }
+        String[] ficheros = { "memes.txt", "realidades.json", "soluciones.xml" };
+        boolean todoBien = true;
 
-        String[] archivosNecesarios = {"memes.txt", "realidades.json", "soluciones.xml"};
-        boolean todoCorrecto = true;
-
-        for (String archivo : archivosNecesarios) {
-            Path rutaArchivo = rutaDatos.resolve(archivo);
-            if (!Files.exists(rutaArchivo)) {
-                System.out.println("ERROR: No existe el archivo: " + archivo);
-                todoCorrecto = false;
-            } else if (!Files.isRegularFile(rutaArchivo)) {
-                System.out.println("ERROR: No es un archivo válido: " + archivo);
-                todoCorrecto = false;
+        for (String fichero : ficheros) {
+            Path ruta = carpetaDatos.resolve(fichero);
+            if (!Files.exists(ruta)) {
+                System.out.println("ERROR: Falta el fichero " + fichero);
+                todoBien = false;
             } else {
-                System.out.println("✓ Encontrado: " + archivo);
+                System.out.println("OK: " + fichero);
             }
         }
 
-        return todoCorrecto;
+        return todoBien;
     }
 
-    // =========================================================================
-    // HU2
-    // =========================================================================
-
-    /**
-     * HU2 - Comprueba si existe el directorio resultados y el fichero mejores.txt.
-     * Si no existen los crea.
-     *
-     * @throws IOException si hay un error al crear el directorio o el fichero
-     */
+    // -------------------------------------------------------------------------
+    // HU2 - Crear carpeta resultados y fichero mejores.txt si no existen
+    // -------------------------------------------------------------------------
     public static void hu2() throws IOException {
-        Path rutaDirectorioResultados = Paths.get("resultados");
-        Path rutaFicheroMejores = Paths.get("resultados/mejores.txt");
 
-        if (!Files.exists(rutaDirectorioResultados))
-            Files.createDirectories(rutaDirectorioResultados);
+        Path carpeta = Paths.get("resultados");
+        Path fichero = Paths.get("resultados/mejores.txt");
 
-        if (!Files.exists(rutaFicheroMejores))
-            Files.createFile(rutaFicheroMejores);
+        if (!Files.exists(carpeta)) {
+            Files.createDirectories(carpeta);
+        }
+
+        if (!Files.exists(fichero)) {
+            Files.createFile(fichero);
+        }
     }
 
-    // =========================================================================
-    // HU3
-    // =========================================================================
-
-    /**
-     * HU3 - Lee el fichero datos/memes.txt línea a línea y rellena listaDeBulos.
-     * Cada línea no vacía es un bulo.
-     *
-     * @throws IOException si hay error al leer el fichero
-     */
+    // -------------------------------------------------------------------------
+    // HU3 - Leer memes.txt y guardar cada línea como un bulo
+    // -------------------------------------------------------------------------
     public static void hu3() throws IOException {
-        Path rutaMemes = Paths.get("datos/memes.txt");
-        listaDeBulos = new ArrayList<>(Files.readAllLines(rutaMemes));
+
+        Path ruta = Paths.get("datos/memes.txt");
+        listaDeBulos = new ArrayList<>(Files.readAllLines(ruta));
         listaDeBulos.removeIf(String::isBlank);
-        System.out.println("✅ Bulos cargados: " + listaDeBulos.size());
+        System.out.println("Bulos cargados: " + listaDeBulos.size());
     }
 
-    // =========================================================================
-    // HU4
-    // =========================================================================
-
-    /**
-     * HU4 - Lee el fichero realidades.json y extrae las realidades.
-     * Formato esperado: array JSON con objetos {"texto":"...", "fuente":"..."}.
-     * Se extrae únicamente el campo "texto" de cada objeto.
-     *
-     * @param ruta ruta del archivo realidades.json
-     * @return ArrayList con los textos de las realidades
-     * @throws IOException si hay error al leer el archivo
-     */
+    // -------------------------------------------------------------------------
+    // HU4 - Leer realidades.json y extraer el campo "texto" de cada objeto
+    // -------------------------------------------------------------------------
     public static ArrayList<String> leerRealidades(String ruta) throws IOException {
+
         List<String> lineas = Files.readAllLines(Paths.get(ruta));
         ArrayList<String> realidades = new ArrayList<>();
 
         for (String linea : lineas) {
             linea = linea.trim();
             if (linea.contains("\"texto\"")) {
-                int inicio         = linea.indexOf("\"texto\"") + "\"texto\"".length();
-                int primerComilla  = linea.indexOf('"', inicio + 1) + 1;
-                int segundaComilla = linea.indexOf('"', primerComilla);
-                if (primerComilla > 0 && segundaComilla > primerComilla) {
-                    String texto = linea.substring(primerComilla, segundaComilla).trim();
-                    if (!texto.isBlank()) realidades.add(texto);
+                int inicio   = linea.indexOf("\"texto\"") + "\"texto\"".length();
+                int abre     = linea.indexOf('"', inicio + 1) + 1;
+                int cierra   = linea.indexOf('"', abre);
+                String texto = linea.substring(abre, cierra).trim();
+                if (!texto.isBlank()) {
+                    realidades.add(texto);
                 }
             }
         }
@@ -167,52 +149,65 @@ public class ProyectoMeme {
         return realidades;
     }
 
-    // =========================================================================
-    // HU5
-    // =========================================================================
+    // -------------------------------------------------------------------------
+    // Leer soluciones.xml → mapa  índice_bulo : índice_realidad  (ambos 0-based)
+    //
+    // Formato esperado en el XML:
+    //   <solucion bulo="0" realidad="2"/>
+    // -------------------------------------------------------------------------
+    public static HashMap<Integer, Integer> leerSoluciones(String ruta) throws IOException {
 
-    /**
-     * HU5 - Selecciona un índice de bulo al azar que no haya sido usado todavía.
-     * Evita repetir bulos ya mostrados en la misma partida.
-     *
-     * @param totalBulos número total de bulos disponibles
-     * @return índice del bulo seleccionado, o -1 si ya se usaron todos
-     */
-    public static int seleccionarBuloAleatorio(int totalBulos) {
-        if (bulosUsados.size() >= totalBulos) return -1;
+        List<String> lineas = Files.readAllLines(Paths.get(ruta));
+        HashMap<Integer, Integer> soluciones = new HashMap<>();
 
-        Random random = new Random();
-        int indice;
-        do {
-            indice = random.nextInt(totalBulos);
-        } while (bulosUsados.contains(indice));
+        for (String linea : lineas) {
+            linea = linea.trim();
+            if (linea.startsWith("<solucion")) {
 
-        bulosUsados.add(indice);
-        return indice;
+                // Extraer el número del atributo bulo="X"
+                String buscaBulo   = "bulo=\"";
+                int inicioBulo     = linea.indexOf(buscaBulo) + buscaBulo.length();
+                int finBulo        = linea.indexOf('"', inicioBulo);
+                Integer numeroBulo = Integer.parseInt(linea.substring(inicioBulo, finBulo));
+
+                // Extraer el número del atributo realidad="X"
+                String buscaReal   = "realidad=\"";
+                int inicioReal     = linea.indexOf(buscaReal) + buscaReal.length();
+                int finReal        = linea.indexOf('"', inicioReal);
+                Integer numeroReal = Integer.parseInt(linea.substring(inicioReal, finReal));
+
+                soluciones.put(numeroBulo, numeroReal);
+            }
+        }
+
+        return soluciones;
     }
 
-    /**
-     * HU5 - Muestra el bulo seleccionado al azar y la lista numerada de realidades.
-     * Devuelve el índice del bulo mostrado para que HU6 pueda comprobar la respuesta.
-     *
-     * @param bulos      lista de todos los bulos
-     * @param realidades lista de todas las realidades
-     * @return índice del bulo mostrado, o -1 si no quedan bulos disponibles
-     */
+    // -------------------------------------------------------------------------
+    // HU5 - Elegir un bulo al azar sin repetir y mostrar las realidades
+    // -------------------------------------------------------------------------
     public static int mostrarBuloYRealidades(List<String> bulos, List<String> realidades) {
-        int indiceBulo = seleccionarBuloAleatorio(bulos.size());
 
-        if (indiceBulo == -1) {
+        if (bulosUsados.size() >= bulos.size()) {
             System.out.println("No quedan bulos por mostrar.");
             return -1;
         }
 
+        // Seleccionar índice al azar que no se haya usado ya
+        Random random  = new Random();
+        int indiceBulo = random.nextInt(bulos.size());
+        while (bulosUsados.contains(indiceBulo)) {
+            indiceBulo = random.nextInt(bulos.size());
+        }
+        bulosUsados.add(indiceBulo);
+
+        // Mostrar el bulo
         System.out.println("\n=================================================");
-        System.out.println("                   BULO / MEME                   ");
-        System.out.println("=================================================");
-        System.out.println(bulos.get(indiceBulo));
+        System.out.println("BULO: " + bulos.get(indiceBulo));
         System.out.println("\n¿Qué dato real desmiente este bulo?");
         System.out.println("-------------------------------------------------");
+
+        // Mostrar la lista numerada de realidades
         for (int i = 0; i < realidades.size(); i++) {
             System.out.println((i + 1) + ". " + realidades.get(i));
         }
@@ -221,46 +216,52 @@ public class ProyectoMeme {
         return indiceBulo;
     }
 
-        // =========================================================================
-    // HU6 - Leer respuesta y comprobar
-    // =========================================================================
- 
+    // -------------------------------------------------------------------------
+    // HU6 - Pedir al usuario que elija un número y comprobar si es correcto
+    // -------------------------------------------------------------------------
+
     /**
-     * HU6 - Pide al usuario que elija una realidad (número entre 1 y N).
-     * Valida la entrada y repite si es incorrecta.
-     *
-     * @param totalRealidades número de opciones disponibles
-     * @return índice elegido por el usuario (0-based)
+     * Pide un número entre 1 y totalRealidades.
+     * Usamos Integer (wrapper) para poder inicializarlo a null
+     * y así saber que todavía no se ha introducido ningún valor válido.
      */
     public static int pedirRespuestaUsuario(int totalRealidades) {
-        int eleccion = -1;
-        while (eleccion < 1 || eleccion > totalRealidades) {
+
+        Integer eleccion = null;   // null = todavía sin respuesta válida
+
+        while (eleccion == null) {
             System.out.print("Tu elección (1-" + totalRealidades + "): ");
-            String entrada = lecturaDelTeclado.nextLine().trim();
+            String entrada = teclado.nextLine().trim();
+
             try {
-                eleccion = Integer.parseInt(entrada);
+                eleccion = Integer.parseInt(entrada);   // String → Integer (autoboxing)
                 if (eleccion < 1 || eleccion > totalRealidades) {
-                    System.out.println("⚠️  Número fuera de rango. Elige entre 1 y " + totalRealidades + ".");
+                    System.out.println("Número fuera de rango. Elige entre 1 y " + totalRealidades);
+                    eleccion = null;   // volver a pedir
                 }
             } catch (NumberFormatException e) {
-                System.out.println("⚠️  Entrada no válida. Introduce un número.");
+                System.out.println("Eso no es un número. Inténtalo de nuevo.");
             }
         }
-        return eleccion - 1; // convertir a 0-based
+
+        return eleccion - 1;   // convertir a 0-based (el usuario ve 1, internamente es 0)
     }
- 
+
     /**
-     * HU6 - Comprueba si la respuesta del usuario es correcta consultando mapaSoluciones.
-     *
-     * @param indiceBulo       índice del bulo mostrado (0-based)
-     * @param respuestaUsuario índice de la realidad elegida (0-based)
-     * @return true si es correcta, false si no
+     * Busca en mapaSoluciones la realidad correcta para ese bulo
+     * y la compara con la respuesta del usuario usando .equals()
+     * porque estamos comparando objetos Integer, no primitivos int.
      */
     public static boolean comprobarRespuesta(int indiceBulo, int respuestaUsuario) {
-        if (!mapaSoluciones.containsKey(indiceBulo)) {
-            System.out.println("⚠️  No hay solución registrada para este bulo.");
+
+        Integer respuestaCorrecta = mapaSoluciones.get(indiceBulo);
+
+        if (respuestaCorrecta == null) {
+            System.out.println("No hay solución registrada para este bulo.");
             return false;
         }
-        return mapaSoluciones.get(indiceBulo) == respuestaUsuario;
+
+        // Usamos .equals() y no == porque son objetos Integer
+        return respuestaCorrecta.equals(respuestaUsuario);
     }
 }
