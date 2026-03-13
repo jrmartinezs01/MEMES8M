@@ -1,11 +1,12 @@
-HU1   Juanra  10/03/206
-HU2 
-HU3 
-HU4
-HU5
-HU6
-HU7
-HU8
+
+HU1     juanra     terminado
+HU2     ivan       terminado
+HU3     Alberto    terminado
+HU4     juanra     terminado
+HU5     ivan       terminado 
+HU6     ivan       en proceso
+HU7     juanra     en proceso
+HU8     alberto    en proceso
 HU9
 HU10
 
