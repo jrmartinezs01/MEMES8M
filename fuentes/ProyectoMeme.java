@@ -264,4 +264,63 @@ public class ProyectoMeme {
         // Usamos .equals() y no == porque son objetos Integer
         return respuestaCorrecta.equals(respuestaUsuario);
     }
+
+    // =========================================================
+// HU7 - Bucle principal: 5 memes + marcador tras cada ronda
+// =========================================================
+
+public void iniciarPartida() throws IOException {
+    puntuacion  = 0;
+    rondaActual = 0;
+    memesUsados = new ArrayList<>();
+
+    // Bucle de 5 rondas (HU7)
+    while (rondaActual < TOTAL_MEMES) {          // TOTAL_MEMES = 5
+        rondaActual++;
+
+        Meme memeActual = seleccionarMemeAleatorio(); // HU5
+        mostrarRonda(memeActual);                     // HU5
+        boolean acierto = procesarRespuesta(memeActual); // HU6
+
+        mostrarMarcador(acierto);                    // ← HU7
+    }
+
+    mostrarPuntuacionFinal();   // HU8
+    gestionarAlta();            // HU9
+    mostrarRankingYDespedida(); // HU10
+}
+
+
+/**
+ * Muestra el marcador actualizado tras cada ronda.
+ * Si quedan rondas, hace una pausa hasta que el usuario pulse INTRO.
+ *
+ * @param acierto indica si la ronda anterior fue un acierto.
+ */
+private void mostrarMarcador(boolean acierto) {
+    int rondasRestantes = TOTAL_MEMES - rondaActual;
+
+    System.out.println();
+    System.out.println("  ┌─────────────────────────────────────┐");
+    System.out.printf( "  │  MARCADOR: %d / %d puntos             │%n",
+                        puntuacion, rondaActual);
+
+    if (rondasRestantes > 0) {
+        System.out.printf(
+                "  │  Quedan %d meme(s) por responder     │%n",
+                rondasRestantes);
+    } else {
+        System.out.println(
+                "  │  ¡Has completado los 5 memes!        │");
+    }
+    System.out.println("  └─────────────────────────────────────┘");
+    System.out.println();
+
+    // Pausa entre rondas para que el usuario lea el marcador
+    if (rondasRestantes > 0) {
+        System.out.print("  Pulsa INTRO para continuar...");
+        scanner.nextLine();
+        System.out.println();
+    }
+}
 }
