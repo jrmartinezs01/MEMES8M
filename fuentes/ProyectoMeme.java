@@ -13,7 +13,6 @@ public class ProyectoMeme {
     static ArrayList<String> listaDeRealidades = new ArrayList<>();
 
     // Mapa soluciones: clave = número de bulo, valor = número de realidad correcta
-    // Usamos Integer (wrapper) en lugar de int porque HashMap lo requiere
     static HashMap<Integer, Integer> mapaSoluciones = new HashMap<>();
 
     // Para leer lo que escribe el usuario
@@ -26,46 +25,32 @@ public class ProyectoMeme {
     // MAIN
     // -------------------------------------------------------------------------
     public static void main(String[] args) throws Exception {
-
+        
         System.out.println("=== Bulo o Realidad ===");
-
+        
         // HU1 - Comprobar que existen los ficheros necesarios
         if (!comprobarArchivosIniciales()) {
             System.out.println("El programa no puede continuar.");
             return;
         }
-
+        
         // HU2 - Crear carpeta resultados y mejores.txt si no existen
         hu2();
-
+        
         // HU3 - Leer los bulos del fichero memes.txt
         hu3();
-
+        
         // HU4 - Leer las realidades del fichero realidades.json
         listaDeRealidades = leerRealidades("datos/realidades.json");
         System.out.println("Realidades cargadas: " + listaDeRealidades.size());
-
+        
         // Leer las soluciones del fichero soluciones.xml
         mapaSoluciones = leerSoluciones("datos/soluciones.xml");
         System.out.println("Soluciones cargadas: " + mapaSoluciones.size());
-
-        // HU5 - Mostrar un bulo al azar y la lista de realidades
-        int indiceBulo = mostrarBuloYRealidades(listaDeBulos, listaDeRealidades);
-
-        // HU6 - Pedir respuesta al usuario y comprobarla
-        if (indiceBulo != -1) {
-            int respuesta = pedirRespuestaUsuario(listaDeRealidades.size());
-            boolean acierto = comprobarRespuesta(indiceBulo, respuesta);
-
-            if (acierto) {
-                System.out.println("¡Correcto!");
-            } else {
-                // Mostrar cuál era la respuesta correcta
-                Integer correcta = mapaSoluciones.get(indiceBulo);
-                System.out.println("Incorrecto. La respuesta correcta era la " + (correcta + 1));
-            }
-        }
-
+        
+        // HU7 - Jugar 5 rondas mostrando marcador
+        hu7();
+        
         teclado.close();
     }
 
@@ -151,9 +136,7 @@ public class ProyectoMeme {
 
     // -------------------------------------------------------------------------
     // Leer soluciones.xml → mapa  índice_bulo : índice_realidad  (ambos 0-based)
-    //
-    // Formato esperado en el XML:
-    //   <solucion bulo="0" realidad="2"/>
+    // Formato esperado en el XML: <solucion bulo="0" realidad="2"/>
     // -------------------------------------------------------------------------
     public static HashMap<Integer, Integer> leerSoluciones(String ruta) throws IOException {
 
@@ -217,41 +200,33 @@ public class ProyectoMeme {
     }
 
     // -------------------------------------------------------------------------
-    // HU6 - Pedir al usuario que elija un número y comprobar si es correcto
+    // HU6 - Pedir al usuario que elija un número
     // -------------------------------------------------------------------------
-
-    /**
-     * Pide un número entre 1 y totalRealidades.
-     * Usamos Integer (wrapper) para poder inicializarlo a null
-     * y así saber que todavía no se ha introducido ningún valor válido.
-     */
     public static int pedirRespuestaUsuario(int totalRealidades) {
 
-        Integer eleccion = null;   // null = todavía sin respuesta válida
+        Integer eleccion = null;
 
         while (eleccion == null) {
             System.out.print("Tu elección (1-" + totalRealidades + "): ");
             String entrada = teclado.nextLine().trim();
 
             try {
-                eleccion = Integer.parseInt(entrada);   // String → Integer (autoboxing)
+                eleccion = Integer.parseInt(entrada);
                 if (eleccion < 1 || eleccion > totalRealidades) {
                     System.out.println("Número fuera de rango. Elige entre 1 y " + totalRealidades);
-                    eleccion = null;   // volver a pedir
+                    eleccion = null;
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Eso no es un número. Inténtalo de nuevo.");
             }
         }
 
-        return eleccion - 1;   // convertir a 0-based (el usuario ve 1, internamente es 0)
+        return eleccion - 1; // convertir a 0-based
     }
 
-    /**
-     * Busca en mapaSoluciones la realidad correcta para ese bulo
-     * y la compara con la respuesta del usuario usando .equals()
-     * porque estamos comparando objetos Integer, no primitivos int.
-     */
+    // -------------------------------------------------------------------------
+    // HU6 (continuación) - Comprobar si la respuesta es correcta
+    // -------------------------------------------------------------------------
     public static boolean comprobarRespuesta(int indiceBulo, int respuestaUsuario) {
 
         Integer respuestaCorrecta = mapaSoluciones.get(indiceBulo);
@@ -261,66 +236,72 @@ public class ProyectoMeme {
             return false;
         }
 
-        // Usamos .equals() y no == porque son objetos Integer
         return respuestaCorrecta.equals(respuestaUsuario);
     }
 
     // =========================================================
-// HU7 - Bucle principal: 5 memes + marcador tras cada ronda
-// =========================================================
-
-public void iniciarPartida() throws IOException {
-    puntuacion  = 0;
-    rondaActual = 0;
-    memesUsados = new ArrayList<>();
-
-    // Bucle de 5 rondas (HU7)
-    while (rondaActual < TOTAL_MEMES) {          // TOTAL_MEMES = 5
-        rondaActual++;
-
-        Meme memeActual = seleccionarMemeAleatorio(); // HU5
-        mostrarRonda(memeActual);                     // HU5
-        boolean acierto = procesarRespuesta(memeActual); // HU6
-
-        mostrarMarcador(acierto);                    // ← HU7
+    // HU7 - Mostrar marcador y repetir hasta completar 5 memes
+    // =========================================================
+    public static void hu7() {
+        
+        int rondasJugadas = 0;
+        int puntuacionTotal = 0;
+        
+        // Limpiar la lista de bulos usados por si acaso
+        bulosUsados.clear();
+        
+        // Bucle para jugar 5 rondas
+        while (rondasJugadas < 5) {
+            
+            System.out.println("\n=== RONDA " + (rondasJugadas + 1) + " DE 5 ===");
+            
+            // HU5 - Mostrar un bulo al azar y la lista de realidades
+            int indiceBulo = mostrarBuloYRealidades(listaDeBulos, listaDeRealidades);
+            
+            if (indiceBulo != -1) {
+                // HU6 - Pedir respuesta y comprobar
+                int respuesta = pedirRespuestaUsuario(listaDeRealidades.size());
+                boolean acierto = comprobarRespuesta(indiceBulo, respuesta);
+                
+                if (acierto) {
+                    System.out.println("✅ ¡Correcto!");
+                    puntuacionTotal++;
+                } else {
+                    Integer correcta = mapaSoluciones.get(indiceBulo);
+                    if (correcta != null) {
+                        System.out.println("❌ Incorrecto. La respuesta correcta era la " + (correcta + 1));
+                    } else {
+                        System.out.println("❌ Incorrecto.");
+                    }
+                }
+                
+                // HU7 - Mostrar marcador actualizado
+                rondasJugadas++;
+                mostrarMarcador(puntuacionTotal, rondasJugadas);
+            }
+        }
+        
+        // Mensaje final
+        System.out.println("\n🎮 ¡JUEGO COMPLETADO!");
+        System.out.println("Puntuación final: " + puntuacionTotal + "/5");
     }
 
-    mostrarPuntuacionFinal();   // HU8
-    gestionarAlta();            // HU9
-    mostrarRankingYDespedida(); // HU10
-}
-
-
-/**
- * Muestra el marcador actualizado tras cada ronda.
- * Si quedan rondas, hace una pausa hasta que el usuario pulse INTRO.
- *
- * @param acierto indica si la ronda anterior fue un acierto.
- */
-private void mostrarMarcador(boolean acierto) {
-    int rondasRestantes = TOTAL_MEMES - rondaActual;
-
-    System.out.println();
-    System.out.println("  ┌─────────────────────────────────────┐");
-    System.out.printf( "  │  MARCADOR: %d / %d puntos             │%n",
-                        puntuacion, rondaActual);
-
-    if (rondasRestantes > 0) {
-        System.out.printf(
-                "  │  Quedan %d meme(s) por responder     │%n",
-                rondasRestantes);
-    } else {
-        System.out.println(
-                "  │  ¡Has completado los 5 memes!        │");
+    /**
+     * Muestra el marcador actual después de cada ronda
+     * @param puntos Puntos actuales
+     * @param rondas Número de rondas jugadas
+     */
+    public static void mostrarMarcador(int puntos, int rondas) {
+        System.out.println("\n╔════════════════════════════╗");
+        System.out.println("║        MARCADOR           ║");
+        System.out.println("╠════════════════════════════╣");
+        System.out.printf("║  PUNTOS: %d/%d              ║%n", puntos, rondas);
+        System.out.printf("║  RONDAS RESTANTES: %d       ║%n", (5 - rondas));
+        System.out.println("╚════════════════════════════╝");
+        
+        if (rondas < 5) {
+            System.out.println("\nPresiona ENTER para continuar...");
+            teclado.nextLine();
+        }
     }
-    System.out.println("  └─────────────────────────────────────┘");
-    System.out.println();
-
-    // Pausa entre rondas para que el usuario lea el marcador
-    if (rondasRestantes > 0) {
-        System.out.print("  Pulsa INTRO para continuar...");
-        scanner.nextLine();
-        System.out.println();
-    }
-}
 }
