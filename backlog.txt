@@ -4,8 +4,8 @@ HU2     ivan       terminado
 HU3     Alberto    terminado
 HU4     juanra     terminado
 HU5     ivan       terminado 
-HU6     ivan       en proceso
-HU7     juanra     en proceso
+HU6     ivan       terminado
+HU7     juanra     terminado
 HU8     alberto    en proceso
 HU9
 HU10
