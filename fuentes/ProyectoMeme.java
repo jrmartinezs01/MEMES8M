@@ -21,6 +21,9 @@ public class ProyectoMeme {
     // Para no repetir bulos ya mostrados
     static ArrayList<Integer> bulosUsados = new ArrayList<>();
 
+    // Variable global para guardar la puntuación final (HU8)
+    static int puntuacionFinal = 0;
+
     // -------------------------------------------------------------------------
     // MAIN
     // -------------------------------------------------------------------------
@@ -50,6 +53,9 @@ public class ProyectoMeme {
         
         // HU7 - Jugar 5 rondas mostrando marcador
         hu7();
+        
+        // HU8 - Mostrar la puntuación final
+        hu8();
         
         teclado.close();
     }
@@ -281,9 +287,8 @@ public class ProyectoMeme {
             }
         }
         
-        // Mensaje final
-        System.out.println("\n🎮 ¡JUEGO COMPLETADO!");
-        System.out.println("Puntuación final: " + puntuacionTotal + "/5");
+        // Guardar la puntuación final en la variable global para HU8
+        puntuacionFinal = puntuacionTotal;
     }
 
     /**
@@ -303,5 +308,37 @@ public class ProyectoMeme {
             System.out.println("\nPresiona ENTER para continuar...");
             teclado.nextLine();
         }
+    }
+
+    // =========================================================
+    // HU8 - Mostrar la puntuación final alcanzada por el usuario
+    // =========================================================
+    public static void hu8() {
+        
+        System.out.println("\n╔════════════════════════════════════╗");
+        System.out.println("║        PUNTUACIÓN FINAL           ║");
+        System.out.println("╠════════════════════════════════════╣");
+        
+        // Mostrar la puntuación con formato
+        System.out.printf("║                                      ║%n");
+        System.out.printf("║          %d / 5 PUNTOS              ║%n", puntuacionFinal);
+        System.out.printf("║                                      ║%n");
+        
+        // Mostrar mensaje según la puntuación
+        System.out.println("╠════════════════════════════════════╣");
+        if (puntuacionFinal == 5) {
+            System.out.println("║   ¡PERFECTO! Has acertado todo     ║");
+        } else if (puntuacionFinal >= 3) {
+            System.out.println("║      ¡BIEN! Buena puntuación       ║");
+        } else if (puntuacionFinal >= 1) {
+            System.out.println("║     Puedes mejorar la próxima      ║");
+        } else {
+            System.out.println("║    ¡Ánimo! La próxima será mejor   ║");
+        }
+        System.out.println("╚════════════════════════════════════╝");
+        
+        // Calcular porcentaje de aciertos
+        double porcentaje = (puntuacionFinal * 100.0) / 5.0;
+        System.out.printf("\n📊 Porcentaje de aciertos: %.1f%%\n", porcentaje);
     }
 }
