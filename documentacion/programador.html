@@ -1,0 +1,833 @@
+<!DOCTYPE HTML>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProyectoMeme – Manual del Programador</title>
+  <style>
+    /* ── Reset y base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DejaVu Sans', Arial, sans-serif;
+      font-size: 14px;
+      color: #353833;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    a { color: #4a6782; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: 'DejaVu Sans Mono', 'Courier New', monospace; }
+
+    /* ── Barra superior (estilo Javadoc clásico) ──────────────── */
+    .top-bar {
+      background: #4d7a97;
+      color: #ffffff;
+      padding: 6px 20px;
+      font-size: 12px;
+      display: flex;
+      gap: 16px;
+    }
+    .top-bar a { color: #ffffff; }
+
+    /* ── Cabecera principal ───────────────────────────────────── */
+    header {
+      background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+      border-bottom: 2px solid #4d7a97;
+      padding: 14px 20px 10px;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: bold;
+      color: #353833;
+    }
+    header .subtitle {
+      font-size: 12px;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    /* ── Diseño general: sidebar + contenido ─────────────────── */
+    .layout {
+      display: flex;
+      flex: 1;
+    }
+
+    /* ── Sidebar de navegación ───────────────────────────────── */
+    nav {
+      width: 220px;
+      min-width: 220px;
+      background: #f5f5f5;
+      border-right: 1px solid #ddd;
+      padding: 16px 0;
+      font-size: 13px;
+    }
+    nav .nav-section {
+      padding: 6px 16px 2px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #4d7a97;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 4px;
+    }
+    nav ul { list-style: none; margin-bottom: 12px; }
+    nav ul li a {
+      display: block;
+      padding: 3px 16px;
+      color: #353833;
+    }
+    nav ul li a:hover { background: #e0e8ef; color: #4a6782; }
+    nav ul li a code { font-size: 12px; }
+
+    /* ── Área de contenido principal ─────────────────────────── */
+    main {
+      flex: 1;
+      padding: 20px 30px 40px;
+      max-width: 960px;
+    }
+
+    /* ── Sección de clase ────────────────────────────────────── */
+    .class-header {
+      background: #dee3e9;
+      border: 1px solid #c0c8d2;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+    .class-header .package-label {
+      font-size: 11px;
+      color: #666;
+    }
+    .class-header h2 {
+      font-size: 18px;
+      color: #353833;
+      margin-top: 2px;
+    }
+    .class-hierarchy {
+      font-size: 13px;
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    .class-hierarchy .indent { margin-left: 20px; }
+    .class-description {
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .class-description p { margin-bottom: 8px; }
+    .class-description ul { margin: 8px 0 8px 24px; }
+    .class-description li { margin-bottom: 3px; }
+
+    /* ── Bloque de metadatos (author, version) ───────────────── */
+    .meta-table {
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .meta-table th {
+      text-align: left;
+      padding: 2px 14px 2px 0;
+      font-weight: bold;
+      color: #353833;
+      white-space: nowrap;
+    }
+    .meta-table td { padding: 2px 0; }
+
+    /* ── Separadores de sección ───────────────────────────────── */
+    .section-title {
+      background: #dee3e9;
+      border: 1px solid #c0c8d2;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #353833;
+      margin: 24px 0 0;
+    }
+
+    /* ── Resumen de campos ───────────────────────────────────── */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+    .summary-table th {
+      background: #eeeeff;
+      border: 1px solid #c0c0ff;
+      padding: 5px 10px;
+      text-align: left;
+      font-size: 12px;
+    }
+    .summary-table td {
+      border: 1px solid #c9c9c9;
+      padding: 5px 10px;
+      vertical-align: top;
+    }
+    .summary-table tr:nth-child(even) td { background: #f5f5f5; }
+    .summary-table .col-mod  { white-space: nowrap; color: #666; font-size: 12px; width: 180px; }
+    .summary-table .col-name { font-weight: bold; }
+    .summary-table .col-name code { color: #4a6782; }
+    .summary-table .col-desc { color: #353833; }
+
+    /* ── Detalle de cada método ──────────────────────────────── */
+    .method-detail {
+      border-top: 1px solid #c9c9c9;
+      padding: 14px 0 10px;
+    }
+    .method-detail:first-child { border-top: none; }
+
+    .method-signature {
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .method-signature .modifier { color: #666; }
+    .method-signature .return-type { color: #4a6782; }
+    .method-signature .method-name { font-weight: bold; color: #353833; }
+
+    .method-description {
+      line-height: 1.6;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .method-description p { margin-bottom: 6px; }
+    .method-description pre {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      font-size: 12px;
+      margin: 6px 0;
+      overflow-x: auto;
+    }
+
+    .params-table {
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 6px 0 6px 20px;
+      width: calc(100% - 20px);
+    }
+    .params-table .label {
+      font-weight: bold;
+      color: #353833;
+      white-space: nowrap;
+      padding: 3px 14px 3px 0;
+      vertical-align: top;
+    }
+    .params-table .param-name {
+      font-weight: bold;
+      color: #4a6782;
+      white-space: nowrap;
+      padding: 3px 10px 3px 0;
+      vertical-align: top;
+    }
+    .params-table .param-desc {
+      padding: 3px 0;
+      vertical-align: top;
+      color: #353833;
+    }
+    .params-table .param-desc code { color: #4a6782; }
+
+    .returns-block, .throws-block {
+      margin: 6px 0 6px 20px;
+      font-size: 13px;
+    }
+    .returns-block strong, .throws-block strong {
+      display: inline-block;
+      min-width: 80px;
+      font-weight: bold;
+      color: #353833;
+    }
+
+    code { background: transparent; color: inherit; }
+    code.inline { color: #4a6782; }
+
+    /* ── Pie de página ───────────────────────────────────────── */
+    footer {
+      background: #dee3e9;
+      border-top: 1px solid #c0c8d2;
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Barra superior de navegación -->
+<div class="top-bar">
+  <a href="#field-summary">Fields</a>
+  <a href="#constructor-summary">Constructors</a>
+  <a href="#method-summary">Methods</a>
+</div>
+
+<!-- Cabecera -->
+<header>
+  <h1>Class ProyectoMeme</h1>
+  <div class="subtitle">Generado por javadoc — Manual del Programador</div>
+</header>
+
+<div class="layout">
+
+  <!-- Navegación lateral -->
+  <nav>
+    <div class="nav-section">Campos</div>
+    <ul>
+      <li><a href="#field-listaDeBulos"><code>listaDeBulos</code></a></li>
+      <li><a href="#field-listaDeRealidades"><code>listaDeRealidades</code></a></li>
+      <li><a href="#field-mapaSoluciones"><code>mapaSoluciones</code></a></li>
+      <li><a href="#field-teclado"><code>teclado</code></a></li>
+      <li><a href="#field-bulosUsados"><code>bulosUsados</code></a></li>
+      <li><a href="#field-puntuacionFinal"><code>puntuacionFinal</code></a></li>
+    </ul>
+    <div class="nav-section">Métodos</div>
+    <ul>
+      <li><a href="#method-main"><code>main</code></a></li>
+      <li><a href="#method-comprobarArchivosIniciales"><code>comprobarArchivosIniciales</code></a></li>
+      <li><a href="#method-crearDirectorioResultados"><code>crearDirectorioResultados</code></a></li>
+      <li><a href="#method-cargarBulos"><code>cargarBulos</code></a></li>
+      <li><a href="#method-leerRealidades"><code>leerRealidades</code></a></li>
+      <li><a href="#method-leerSoluciones"><code>leerSoluciones</code></a></li>
+      <li><a href="#method-mostrarBuloYRealidades"><code>mostrarBuloYRealidades</code></a></li>
+      <li><a href="#method-pedirRespuestaUsuario"><code>pedirRespuestaUsuario</code></a></li>
+      <li><a href="#method-comprobarRespuesta"><code>comprobarRespuesta</code></a></li>
+      <li><a href="#method-jugarPartida"><code>jugarPartida</code></a></li>
+      <li><a href="#method-mostrarMarcador"><code>mostrarMarcador</code></a></li>
+      <li><a href="#method-mostrarPuntuacionFinal"><code>mostrarPuntuacionFinal</code></a></li>
+      <li><a href="#method-guardarPuntuacionSiEsMejor"><code>guardarPuntuacionSiEsMejor</code></a></li>
+      <li><a href="#method-leerMejores"><code>leerMejores</code></a></li>
+      <li><a href="#method-estaEnTop3"><code>estaEnTop3</code></a></li>
+      <li><a href="#method-ordenarPuntuaciones"><code>ordenarPuntuaciones</code></a></li>
+      <li><a href="#method-extraerPuntuacion"><code>extraerPuntuacion</code></a></li>
+      <li><a href="#method-extraerNombre"><code>extraerNombre</code></a></li>
+      <li><a href="#method-guardarTop3"><code>guardarTop3</code></a></li>
+      <li><a href="#method-mostrarRankingYDespedirse"><code>mostrarRankingYDespedirse</code></a></li>
+    </ul>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main>
+
+    <!-- Cabecera de la clase -->
+    <div class="class-header">
+      <div class="package-label">java.lang.Object</div>
+      <h2>Class <strong>ProyectoMeme</strong></h2>
+    </div>
+
+    <div class="class-hierarchy">
+      java.lang.Object<br>
+      <span class="indent">↳&nbsp; <strong>ProyectoMeme</strong></span>
+    </div>
+
+    <div class="class-description">
+      <p>Clase principal del juego <em>"Bulo o Realidad"</em>.</p>
+      <p>El jugador ve un bulo (meme falso) y tiene que elegir, de una lista numerada, qué dato real lo desmiente. Se juegan 5 rondas y al final se guarda la puntuación si es de las tres mejores.</p>
+      <p>Ficheros que usa el programa:</p>
+      <ul>
+        <li><code>datos/memes.txt</code> — un bulo por línea</li>
+        <li><code>datos/realidades.json</code> — objetos con campo <code>"texto"</code></li>
+        <li><code>datos/soluciones.xml</code> — relación bulo-realidad</li>
+        <li><code>resultados/mejores.txt</code> — ranking de los tres mejores</li>
+      </ul>
+      <table class="meta-table" style="margin-top:12px">
+        <tr><th>Author:</th><td>Nombre Apellido</td></tr>
+        <tr><th>Version:</th><td>1.0</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         RESUMEN DE CAMPOS
+    ═══════════════════════════════════════════════════════ -->
+    <div class="section-title" id="field-summary">Field Summary</div>
+
+    <table class="summary-table">
+      <tr>
+        <th>Modifier and Type</th>
+        <th>Field</th>
+        <th>Description</th>
+      </tr>
+      <tr id="field-listaDeBulos">
+        <td class="col-mod"><code>static ArrayList&lt;String&gt;</code></td>
+        <td class="col-name"><code><a href="#field-detail-listaDeBulos">listaDeBulos</a></code></td>
+        <td class="col-desc">Bulos leídos de <code>memes.txt</code>.</td>
+      </tr>
+      <tr id="field-listaDeRealidades">
+        <td class="col-mod"><code>static ArrayList&lt;String&gt;</code></td>
+        <td class="col-name"><code><a href="#field-detail-listaDeRealidades">listaDeRealidades</a></code></td>
+        <td class="col-desc">Realidades leídas de <code>realidades.json</code>.</td>
+      </tr>
+      <tr id="field-mapaSoluciones">
+        <td class="col-mod"><code>static HashMap&lt;Integer,&nbsp;Integer&gt;</code></td>
+        <td class="col-name"><code><a href="#field-detail-mapaSoluciones">mapaSoluciones</a></code></td>
+        <td class="col-desc">Clave: índice del bulo. Valor: índice de la realidad correcta (base&nbsp;0).</td>
+      </tr>
+      <tr id="field-teclado">
+        <td class="col-mod"><code>static Scanner</code></td>
+        <td class="col-name"><code><a href="#field-detail-teclado">teclado</a></code></td>
+        <td class="col-desc">Para leer la entrada del usuario por teclado.</td>
+      </tr>
+      <tr id="field-bulosUsados">
+        <td class="col-mod"><code>static ArrayList&lt;Integer&gt;</code></td>
+        <td class="col-name"><code><a href="#field-detail-bulosUsados">bulosUsados</a></code></td>
+        <td class="col-desc">Índices de los bulos que ya han salido, para no repetirlos.</td>
+      </tr>
+      <tr id="field-puntuacionFinal">
+        <td class="col-mod"><code>static Integer</code></td>
+        <td class="col-name"><code><a href="#field-detail-puntuacionFinal">puntuacionFinal</a></code></td>
+        <td class="col-desc">Puntos que ha sacado el jugador en la partida (se rellena en <code>jugarPartida</code>).</td>
+      </tr>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════
+         RESUMEN DE MÉTODOS
+    ═══════════════════════════════════════════════════════ -->
+    <div class="section-title" id="method-summary">Method Summary</div>
+
+    <table class="summary-table">
+      <tr>
+        <th>Modifier and Type</th>
+        <th>Method</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-main">main</a>(String[] args)</code></td>
+        <td class="col-desc">Punto de entrada del programa.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static Boolean</code></td>
+        <td class="col-name"><code><a href="#method-comprobarArchivosIniciales">comprobarArchivosIniciales</a>()</code></td>
+        <td class="col-desc">Comprueba que exista la carpeta <code>datos/</code> y los tres ficheros necesarios.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-crearDirectorioResultados">crearDirectorioResultados</a>()</code></td>
+        <td class="col-desc">Crea la carpeta <code>resultados/</code> y el fichero <code>mejores.txt</code> si no existen.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-cargarBulos">cargarBulos</a>()</code></td>
+        <td class="col-desc">Lee <code>datos/memes.txt</code> y guarda cada bulo en <code>listaDeBulos</code>.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static ArrayList&lt;String&gt;</code></td>
+        <td class="col-name"><code><a href="#method-leerRealidades">leerRealidades</a>(String rutaFichero)</code></td>
+        <td class="col-desc">Lee el fichero JSON de realidades y extrae el campo <code>"texto"</code> de cada objeto.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static HashMap&lt;Integer,&nbsp;Integer&gt;</code></td>
+        <td class="col-name"><code><a href="#method-leerSoluciones">leerSoluciones</a>(String rutaFichero)</code></td>
+        <td class="col-desc">Lee el fichero XML de soluciones y construye el mapa bulo→realidad.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static Integer</code></td>
+        <td class="col-name"><code><a href="#method-mostrarBuloYRealidades">mostrarBuloYRealidades</a>(List&lt;String&gt; listaBulos, List&lt;String&gt; listaRealidades)</code></td>
+        <td class="col-desc">Elige un bulo al azar sin repetir y muestra la lista numerada de realidades.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static Integer</code></td>
+        <td class="col-name"><code><a href="#method-pedirRespuestaUsuario">pedirRespuestaUsuario</a>(Integer totalOpciones)</code></td>
+        <td class="col-desc">Pide al usuario un número válido entre 1 y <code>totalOpciones</code>.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static Boolean</code></td>
+        <td class="col-name"><code><a href="#method-comprobarRespuesta">comprobarRespuesta</a>(Integer indiceBulo, Integer respuestaUsuario)</code></td>
+        <td class="col-desc">Comprueba si la respuesta del usuario coincide con la solución registrada.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-jugarPartida">jugarPartida</a>()</code></td>
+        <td class="col-desc">Controla el bucle principal del juego: 5 rondas consecutivas.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-mostrarMarcador">mostrarMarcador</a>(Integer puntosActuales, Integer rondasJugadas)</code></td>
+        <td class="col-desc">Muestra el marcador actual tras cada ronda.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-mostrarPuntuacionFinal">mostrarPuntuacionFinal</a>()</code></td>
+        <td class="col-desc">Muestra la puntuación final con un mensaje motivacional y el porcentaje de aciertos.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-guardarPuntuacionSiEsMejor">guardarPuntuacionSiEsMejor</a>()</code></td>
+        <td class="col-desc">Guarda la puntuación en el ranking si está entre las tres mejores.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static ArrayList&lt;String&gt;</code></td>
+        <td class="col-name"><code><a href="#method-leerMejores">leerMejores</a>(Path ficheroRanking)</code></td>
+        <td class="col-desc">Lee <code>mejores.txt</code> y devuelve sus entradas ignorando las líneas vacías.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static Boolean</code></td>
+        <td class="col-name"><code><a href="#method-estaEnTop3">estaEnTop3</a>(ArrayList&lt;String&gt; entradasRanking, Integer puntuacionNueva)</code></td>
+        <td class="col-desc">Determina si una puntuación merece entrar en el top 3.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-ordenarPuntuaciones">ordenarPuntuaciones</a>(ArrayList&lt;String&gt; entradasRanking)</code></td>
+        <td class="col-desc">Ordena el ranking de mayor a menor puntuación usando el algoritmo de burbuja.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static Integer</code></td>
+        <td class="col-name"><code><a href="#method-extraerPuntuacion">extraerPuntuacion</a>(String entradaRanking)</code></td>
+        <td class="col-desc">Extrae la puntuación numérica de una línea del ranking.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static String</code></td>
+        <td class="col-name"><code><a href="#method-extraerNombre">extraerNombre</a>(String entradaRanking)</code></td>
+        <td class="col-desc">Extrae el nombre del jugador de una línea del ranking.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-guardarTop3">guardarTop3</a>(Path ficheroRanking, ArrayList&lt;String&gt; entradasRanking)</code></td>
+        <td class="col-desc">Escribe las tres primeras entradas de la lista ordenada en el fichero.</td>
+      </tr>
+      <tr>
+        <td class="col-mod"><code>static void</code></td>
+        <td class="col-name"><code><a href="#method-mostrarRankingYDespedirse">mostrarRankingYDespedirse</a>()</code></td>
+        <td class="col-desc">Muestra el ranking de mejores puntuaciones y se despide del jugador.</td>
+      </tr>
+    </table>
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         DETALLE DE CAMPOS
+    ═══════════════════════════════════════════════════════ -->
+    <div class="section-title">Field Detail</div>
+
+    <div class="method-detail" id="field-detail-listaDeBulos">
+      <div class="method-signature">
+        <code><span class="modifier">static </span><span class="return-type">ArrayList&lt;String&gt;</span> <span class="method-name">listaDeBulos</span></code>
+      </div>
+      <div class="method-description"><p>Bulos leídos de <code>memes.txt</code>. Se rellena en <a href="#method-cargarBulos"><code>cargarBulos()</code></a>.</p></div>
+    </div>
+
+    <div class="method-detail" id="field-detail-listaDeRealidades">
+      <div class="method-signature">
+        <code><span class="modifier">static </span><span class="return-type">ArrayList&lt;String&gt;</span> <span class="method-name">listaDeRealidades</span></code>
+      </div>
+      <div class="method-description"><p>Realidades leídas de <code>realidades.json</code>. Se rellena en <a href="#method-leerRealidades"><code>leerRealidades()</code></a>.</p></div>
+    </div>
+
+    <div class="method-detail" id="field-detail-mapaSoluciones">
+      <div class="method-signature">
+        <code><span class="modifier">static </span><span class="return-type">HashMap&lt;Integer, Integer&gt;</span> <span class="method-name">mapaSoluciones</span></code>
+      </div>
+      <div class="method-description"><p>Clave: índice del bulo (base 0). Valor: índice de la realidad correcta (base 0). Se rellena en <a href="#method-leerSoluciones"><code>leerSoluciones()</code></a>.</p></div>
+    </div>
+
+    <div class="method-detail" id="field-detail-teclado">
+      <div class="method-signature">
+        <code><span class="modifier">static </span><span class="return-type">Scanner</span> <span class="method-name">teclado</span></code>
+      </div>
+      <div class="method-description"><p>Scanner vinculado a <code>System.in</code> para leer la entrada del usuario.</p></div>
+    </div>
+
+    <div class="method-detail" id="field-detail-bulosUsados">
+      <div class="method-signature">
+        <code><span class="modifier">static </span><span class="return-type">ArrayList&lt;Integer&gt;</span> <span class="method-name">bulosUsados</span></code>
+      </div>
+      <div class="method-description"><p>Índices de los bulos que ya han salido en la partida actual. Garantiza que no se repita ningún bulo durante las 5 rondas.</p></div>
+    </div>
+
+    <div class="method-detail" id="field-detail-puntuacionFinal">
+      <div class="method-signature">
+        <code><span class="modifier">static </span><span class="return-type">Integer</span> <span class="method-name">puntuacionFinal</span></code>
+      </div>
+      <div class="method-description"><p>Puntos obtenidos por el jugador en la última partida. Se asigna al terminar <a href="#method-jugarPartida"><code>jugarPartida()</code></a> y se usa en <a href="#method-mostrarPuntuacionFinal"><code>mostrarPuntuacionFinal()</code></a> y <a href="#method-guardarPuntuacionSiEsMejor"><code>guardarPuntuacionSiEsMejor()</code></a>.</p></div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════════
+         DETALLE DE MÉTODOS
+    ═══════════════════════════════════════════════════════ -->
+    <div class="section-title" id="method-detail">Method Detail</div>
+
+    <!-- main -->
+    <div class="method-detail" id="method-main">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">main</span>(String[] args) throws Exception</code>
+      </div>
+      <div class="method-description">
+        <p>Punto de entrada del programa. Llama a cada historia de usuario en orden y cierra el scanner al terminar.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>args</code></td><td class="param-desc">Argumentos de línea de comandos (no se usan).</td></tr>
+      </table>
+      <div class="throws-block"><strong>Throws:</strong> <code>Exception</code> — si ocurre cualquier error de lectura/escritura.</div>
+    </div>
+
+    <!-- comprobarArchivosIniciales -->
+    <div class="method-detail" id="method-comprobarArchivosIniciales">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">Boolean</span> <span class="method-name">comprobarArchivosIniciales</span>()</code>
+      </div>
+      <div class="method-description">
+        <p>Comprueba que exista la carpeta <code>datos/</code> y los tres ficheros necesarios para que el juego funcione (<code>memes.txt</code>, <code>realidades.json</code>, <code>soluciones.xml</code>).</p>
+        <p>Si falta alguno muestra un mensaje de error por pantalla pero sigue revisando el resto para informar de todos los problemas de una sola vez.</p>
+      </div>
+      <div class="returns-block"><strong>Returns:</strong> <code>true</code> si todo está en orden, <code>false</code> si falta algo.</div>
+    </div>
+
+    <!-- crearDirectorioResultados -->
+    <div class="method-detail" id="method-crearDirectorioResultados">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">crearDirectorioResultados</span>() throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Crea la carpeta <code>resultados/</code> y el fichero <code>mejores.txt</code> si todavía no existen. Si ya existen no hace nada.</p>
+      </div>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si no se puede crear la carpeta o el fichero.</div>
+    </div>
+
+    <!-- cargarBulos -->
+    <div class="method-detail" id="method-cargarBulos">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">cargarBulos</span>() throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Lee el fichero <code>datos/memes.txt</code> línea a línea y guarda cada bulo en <a href="#field-detail-listaDeBulos"><code>listaDeBulos</code></a>. Las líneas en blanco se ignoran.</p>
+      </div>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si el fichero no se puede leer.</div>
+    </div>
+
+    <!-- leerRealidades -->
+    <div class="method-detail" id="method-leerRealidades">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">ArrayList&lt;String&gt;</span> <span class="method-name">leerRealidades</span>(String rutaFichero) throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Lee el fichero JSON de realidades y extrae el valor del campo <code>"texto"</code> de cada objeto.</p>
+        <p>El parseo es manual (sin librerías) porque el formato es sencillo y predecible: una propiedad <code>"texto"</code> por línea.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>rutaFichero</code></td><td class="param-desc">Ruta al fichero <code>realidades.json</code>.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> Lista con el texto de cada realidad en el mismo orden que aparece en el fichero.</div>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si el fichero no se puede leer.</div>
+    </div>
+
+    <!-- leerSoluciones -->
+    <div class="method-detail" id="method-leerSoluciones">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">HashMap&lt;Integer,&nbsp;Integer&gt;</span> <span class="method-name">leerSoluciones</span>(String rutaFichero) throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Lee el fichero XML de soluciones y construye un mapa que relaciona el índice de cada bulo con el índice de su realidad correcta.</p>
+        <p>Formato esperado de cada línea significativa:</p>
+        <pre>&lt;solucion bulo="0" realidad="2"/&gt;</pre>
+        <p>Ambos índices son base 0, igual que las listas internas.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>rutaFichero</code></td><td class="param-desc">Ruta al fichero <code>soluciones.xml</code>.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> Mapa <code>indiceBulo → indiceRealidad</code>.</div>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si el fichero no se puede leer.</div>
+    </div>
+
+    <!-- mostrarBuloYRealidades -->
+    <div class="method-detail" id="method-mostrarBuloYRealidades">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">Integer</span> <span class="method-name">mostrarBuloYRealidades</span>(List&lt;String&gt; listaBulos, List&lt;String&gt; listaRealidades)</code>
+      </div>
+      <div class="method-description">
+        <p>Elige un bulo al azar que no se haya mostrado todavía y presenta la lista numerada de realidades para que el jugador elija.</p>
+        <p>El índice del bulo elegido se añade a <a href="#field-detail-bulosUsados"><code>bulosUsados</code></a> para evitar repeticiones en rondas posteriores.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>listaBulos</code></td><td class="param-desc">Lista completa de bulos disponibles.</td></tr>
+        <tr><td class="label"></td><td class="param-name"><code>listaRealidades</code></td><td class="param-desc">Lista de realidades que se mostrarán al jugador.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> Índice (base 0) del bulo que se ha mostrado, o <code>-1</code> si ya se han agotado todos los bulos.</div>
+    </div>
+
+    <!-- pedirRespuestaUsuario -->
+    <div class="method-detail" id="method-pedirRespuestaUsuario">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">Integer</span> <span class="method-name">pedirRespuestaUsuario</span>(Integer totalOpciones)</code>
+      </div>
+      <div class="method-description">
+        <p>Pide al usuario que introduzca un número entre 1 y <code>totalOpciones</code>. Si escribe algo que no es un número o está fuera de rango, vuelve a pedirlo hasta que sea válido.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>totalOpciones</code></td><td class="param-desc">Número de realidades disponibles para elegir.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> Índice elegido en base 0 (lo que el usuario ve como 1 se devuelve como 0, etc.).</div>
+    </div>
+
+    <!-- comprobarRespuesta -->
+    <div class="method-detail" id="method-comprobarRespuesta">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">Boolean</span> <span class="method-name">comprobarRespuesta</span>(Integer indiceBulo, Integer respuestaUsuario)</code>
+      </div>
+      <div class="method-description">
+        <p>Consulta en <a href="#field-detail-mapaSoluciones"><code>mapaSoluciones</code></a> si el índice de realidad elegido por el usuario coincide con la respuesta correcta para ese bulo.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>indiceBulo</code></td><td class="param-desc">Índice (base 0) del bulo que se estaba mostrando.</td></tr>
+        <tr><td class="label"></td><td class="param-name"><code>respuestaUsuario</code></td><td class="param-desc">Índice (base 0) de la realidad elegida.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> <code>true</code> si la respuesta es correcta, <code>false</code> si no.</div>
+    </div>
+
+    <!-- jugarPartida -->
+    <div class="method-detail" id="method-jugarPartida">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">jugarPartida</span>()</code>
+      </div>
+      <div class="method-description">
+        <p>Controla el bucle principal del juego: 5 rondas consecutivas. Después de cada ronda llama a <a href="#method-mostrarMarcador"><code>mostrarMarcador()</code></a> para que el jugador sepa cómo va. Al terminar guarda el resultado en <a href="#field-detail-puntuacionFinal"><code>puntuacionFinal</code></a>.</p>
+      </div>
+    </div>
+
+    <!-- mostrarMarcador -->
+    <div class="method-detail" id="method-mostrarMarcador">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">mostrarMarcador</span>(Integer puntosActuales, Integer rondasJugadas)</code>
+      </div>
+      <div class="method-description">
+        <p>Muestra por pantalla el marcador actual con los puntos conseguidos y las rondas que quedan. Si la partida no ha terminado, espera a que el jugador pulse ENTER antes de continuar.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>puntosActuales</code></td><td class="param-desc">Puntos acumulados hasta este momento.</td></tr>
+        <tr><td class="label"></td><td class="param-name"><code>rondasJugadas</code></td><td class="param-desc">Número de rondas ya completadas.</td></tr>
+      </table>
+    </div>
+
+    <!-- mostrarPuntuacionFinal -->
+    <div class="method-detail" id="method-mostrarPuntuacionFinal">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">mostrarPuntuacionFinal</span>()</code>
+      </div>
+      <div class="method-description">
+        <p>Muestra la puntuación final de la partida junto con un mensaje motivacional según el resultado y el porcentaje de aciertos.</p>
+      </div>
+    </div>
+
+    <!-- guardarPuntuacionSiEsMejor -->
+    <div class="method-detail" id="method-guardarPuntuacionSiEsMejor">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">guardarPuntuacionSiEsMejor</span>() throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Comprueba si la puntuación de la partida recién jugada merece estar en el top 3. Si es así, pide el nombre al jugador, añade la entrada al ranking y guarda los tres mejores en <code>resultados/mejores.txt</code>.</p>
+        <p>Si el jugador no escribe nada, su nombre se guarda como <code>"Anonimo"</code>.</p>
+      </div>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si no se puede leer o escribir el fichero de mejores.</div>
+    </div>
+
+    <!-- leerMejores -->
+    <div class="method-detail" id="method-leerMejores">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">ArrayList&lt;String&gt;</span> <span class="method-name">leerMejores</span>(Path ficheroRanking) throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Lee el fichero <code>mejores.txt</code> y devuelve sus líneas en una lista, ignorando las que estén vacías.</p>
+        <p>Formato de cada línea: <code>nombre;puntuacion</code></p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>ficheroRanking</code></td><td class="param-desc">Ruta al fichero de mejores puntuaciones.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> Lista de entradas del ranking. Puede estar vacía si el fichero no tiene contenido todavía.</div>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si el fichero no se puede leer.</div>
+    </div>
+
+    <!-- estaEnTop3 -->
+    <div class="method-detail" id="method-estaEnTop3">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">Boolean</span> <span class="method-name">estaEnTop3</span>(ArrayList&lt;String&gt; entradasRanking, Integer puntuacionNueva)</code>
+      </div>
+      <div class="method-description">
+        <p>Determina si una puntuación dada merece entrar en el top 3.</p>
+        <p>Si el ranking tiene menos de 3 entradas siempre entra. Si ya tiene 3, solo entra si supera estrictamente a la tercera (en caso de empate no se guarda).</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>entradasRanking</code></td><td class="param-desc">Entradas actuales del ranking (formato <code>nombre;puntuacion</code>).</td></tr>
+        <tr><td class="label"></td><td class="param-name"><code>puntuacionNueva</code></td><td class="param-desc">Puntuación a comparar con el ranking actual.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> <code>true</code> si la puntuación entra en el top 3.</div>
+    </div>
+
+    <!-- ordenarPuntuaciones -->
+    <div class="method-detail" id="method-ordenarPuntuaciones">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">ordenarPuntuaciones</span>(ArrayList&lt;String&gt; entradasRanking)</code>
+      </div>
+      <div class="method-description">
+        <p>Ordena la lista del ranking de mayor a menor puntuación usando el algoritmo de burbuja.</p>
+        <p>Se modifica la lista original directamente, no se devuelve nada.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>entradasRanking</code></td><td class="param-desc">Lista de entradas en formato <code>nombre;puntuacion</code>.</td></tr>
+      </table>
+    </div>
+
+    <!-- extraerPuntuacion -->
+    <div class="method-detail" id="method-extraerPuntuacion">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">Integer</span> <span class="method-name">extraerPuntuacion</span>(String entradaRanking)</code>
+      </div>
+      <div class="method-description">
+        <p>Extrae la puntuación numérica de una línea del ranking.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>entradaRanking</code></td><td class="param-desc">Línea con formato <code>nombre;puntuacion</code>.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> Puntuación como <code>Integer</code>.</div>
+    </div>
+
+    <!-- extraerNombre -->
+    <div class="method-detail" id="method-extraerNombre">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">String</span> <span class="method-name">extraerNombre</span>(String entradaRanking)</code>
+      </div>
+      <div class="method-description">
+        <p>Extrae el nombre del jugador de una línea del ranking.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>entradaRanking</code></td><td class="param-desc">Línea con formato <code>nombre;puntuacion</code>.</td></tr>
+      </table>
+      <div class="returns-block"><strong>Returns:</strong> Nombre del jugador.</div>
+    </div>
+
+    <!-- guardarTop3 -->
+    <div class="method-detail" id="method-guardarTop3">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">guardarTop3</span>(Path ficheroRanking, ArrayList&lt;String&gt; entradasRanking) throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Escribe en el fichero las tres primeras entradas de la lista (que debe estar ya ordenada de mayor a menor).</p>
+        <p>Si la lista tiene menos de 3 elementos se guardan todos.</p>
+      </div>
+      <table class="params-table">
+        <tr><td class="label">Parameters:</td><td class="param-name"><code>ficheroRanking</code></td><td class="param-desc">Ruta al fichero donde guardar el ranking.</td></tr>
+        <tr><td class="label"></td><td class="param-name"><code>entradasRanking</code></td><td class="param-desc">Lista ordenada de entradas del ranking.</td></tr>
+      </table>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si no se puede escribir el fichero.</div>
+    </div>
+
+    <!-- mostrarRankingYDespedirse -->
+    <div class="method-detail" id="method-mostrarRankingYDespedirse">
+      <div class="method-signature">
+        <code><span class="modifier">public static </span><span class="return-type">void</span> <span class="method-name">mostrarRankingYDespedirse</span>() throws IOException</code>
+      </div>
+      <div class="method-description">
+        <p>Muestra el ranking de las tres mejores puntuaciones guardadas en <code>resultados/mejores.txt</code> y se despide del jugador.</p>
+        <p>Si el fichero está vacío (nadie ha entrado en el top 3 todavía) lo indica con un mensaje.</p>
+      </div>
+      <div class="throws-block"><strong>Throws:</strong> <code>IOException</code> — si el fichero de mejores no se puede leer.</div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <p>Generated by <strong>javadoc</strong> — ProyectoMeme 1.0 — Autor: Nombre Apellido</p>
+</footer>
+
+</body>
+</html>
