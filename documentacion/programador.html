@@ -1,0 +1,621 @@
+<!DOCTYPE HTML>
+<html lang="es">
+<head>
+<title>ProyectoMeme</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style type="text/css">
+/*
+ * Estilos generados por javadoc -- NO EDITAR
+ * Herramienta: javadoc 21.0.10
+ */
+body {
+    background-color:#ffffff;
+    color:#353833;
+    font-family:'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-size:14px;
+    margin:0;
+    padding:0;
+}
+a { color:#4A6782; text-decoration:none; }
+a:hover, a:focus { text-decoration:underline; }
+
+/* ---------- CABECERA ---------- */
+.top-nav {
+    background-color:#4D7A97;
+    color:#FFFFFF;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    height:35px;
+    font-size:12px;
+}
+.top-nav a { color:#FFFFFF; padding:0 5px; font-size:12px; }
+.top-nav a:hover { background-color:#00000022; }
+.top-nav .nav-bar-cell-right { margin-left:auto; }
+
+.sub-nav {
+    background-color:#dee3e9;
+    padding:3px 10px;
+    font-size:12px;
+    border-bottom:1px solid #9eadc0;
+}
+.sub-nav a { color:#4A6782; }
+
+/* ---------- CABECERA DE CLASE ---------- */
+.header {
+    background-color:#F8F8F8;
+    padding:15px 20px 5px 20px;
+    border-bottom:1px solid #9eadc0;
+}
+.header h1 {
+    font-size:21px;
+    font-weight:bold;
+    color:#353833;
+    margin:0 0 5px 0;
+}
+.header .inheritance {
+    font-size:12px;
+    color:#353833;
+    margin:0 0 8px 0;
+}
+.header .inheritance a { color:#4A6782; }
+
+/* ---------- BLOQUE DE DESCRIPCIÓN ---------- */
+.class-desc {
+    padding:10px 20px;
+    font-size:14px;
+    line-height:1.6;
+    border-bottom:1px solid #9eadc0;
+}
+.class-desc .block { margin-bottom:8px; }
+
+.annotations-info {
+    background-color:#FFFFEC;
+    padding:5px 10px;
+    font-size:12px;
+    border:1px solid #C8C800;
+    margin:10px 0;
+    display:inline-block;
+}
+
+/* ---------- RESUMEN (summary) ---------- */
+.summary-section {
+    padding:10px 20px;
+}
+.summary-section h2 {
+    font-size:16px;
+    color:#353833;
+    border-bottom:1px solid #9eadc0;
+    padding-bottom:4px;
+    margin-top:20px;
+}
+.summary-section h3 {
+    font-size:14px;
+    color:#353833;
+    background-color:#dee3e9;
+    padding:4px 8px;
+    margin:0;
+    border:1px solid #9eadc0;
+}
+
+table.summary-table {
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:20px;
+    font-size:13px;
+}
+table.summary-table th {
+    background-color:#dee3e9;
+    padding:5px 8px;
+    text-align:left;
+    border:1px solid #9eadc0;
+    font-size:13px;
+}
+table.summary-table td {
+    padding:5px 8px;
+    border:1px solid #9eadc0;
+    vertical-align:top;
+}
+table.summary-table tr:nth-child(even) { background-color:#EEEEEF; }
+table.summary-table .col-first {
+    width:30%;
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:12px;
+}
+table.summary-table .col-last { width:70%; }
+table.summary-table .member-name-link { font-weight:bold; }
+table.summary-table code { font-family:'DejaVu Sans Mono', monospace; font-size:12px; }
+
+/* ---------- DETALLE ---------- */
+.detail-section {
+    padding:10px 20px;
+}
+.detail-section h2 {
+    font-size:16px;
+    color:#353833;
+    border-bottom:1px solid #9eadc0;
+    padding-bottom:4px;
+    margin-top:20px;
+}
+
+.member-detail {
+    border-top:1px solid #9eadc0;
+    padding:12px 0 8px 0;
+}
+.member-detail:first-child { border-top:none; }
+
+.member-detail h4 {
+    font-size:15px;
+    margin:0 0 4px 0;
+    color:#353833;
+}
+.member-detail .member-signature {
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:13px;
+    background-color:#F8F8F8;
+    border:1px solid #9eadc0;
+    padding:6px 10px;
+    margin:4px 0 10px 0;
+    display:block;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+}
+.member-detail .member-signature .return-type { color:#0000C0; }
+.member-detail .member-signature .modifiers    { color:#606060; }
+.member-detail .block { margin-bottom:6px; line-height:1.5; }
+
+.param-label, .return-label, .throws-label {
+    font-weight:bold;
+    margin-top:8px;
+    display:block;
+}
+dl.notes dt { font-weight:bold; margin-top:6px; }
+dl.notes dd { margin-left:20px; }
+
+code { font-family:'DejaVu Sans Mono', monospace; font-size:12px; }
+pre  { font-family:'DejaVu Sans Mono', monospace; font-size:12px;
+       background:#F8F8F8; border:1px solid #ddd; padding:8px; }
+
+/* ---------- PIE ---------- */
+.bottom-nav {
+    background-color:#4D7A97;
+    color:#FFFFFF;
+    padding:5px 10px;
+    font-size:11px;
+    margin-top:20px;
+}
+.legal-copy {
+    background-color:#EEEEEF;
+    text-align:center;
+    padding:5px;
+    font-size:11px;
+    color:#716464;
+}
+
+/* ---------- CAMPOS ---------- */
+.field-detail .field-signature {
+    font-family:'DejaVu Sans Mono', monospace;
+    font-size:13px;
+    background-color:#F8F8F8;
+    border:1px solid #9eadc0;
+    padding:6px 10px;
+    margin:4px 0 10px 0;
+    display:block;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ BARRA SUPERIOR -->
+<nav class="top-nav" role="navigation">
+  <ul style="list-style:none;margin:0;padding:0;display:flex;gap:4px;">
+    <li><a href="#" title="Módulo">Módulo</a></li>
+    <li>·</li>
+    <li><a href="#" title="Paquete">Paquete</a></li>
+    <li>·</li>
+    <li><strong>Clase</strong></li>
+    <li>·</li>
+    <li><a href="#" title="Uso">Uso</a></li>
+    <li>·</li>
+    <li><a href="#" title="Árbol">Árbol</a></li>
+    <li>·</li>
+    <li><a href="#" title="Índice">Índice</a></li>
+    <li>·</li>
+    <li><a href="#" title="Ayuda">Ayuda</a></li>
+  </ul>
+  <div class="nav-bar-cell-right">
+    <span>Anterior&nbsp;Clase&nbsp;&nbsp;Siguiente&nbsp;Clase</span>
+  </div>
+</nav>
+
+<div class="sub-nav">
+  <span>Resumen:&nbsp;<a href="#field-summary">Campo</a>&nbsp;|&nbsp;<a href="#constructor-summary">Constructor</a>&nbsp;|&nbsp;<a href="#method-summary">Método</a></span>
+  &nbsp;&nbsp;&nbsp;
+  <span>Detalle:&nbsp;<a href="#field-detail">Campo</a>&nbsp;|&nbsp;<a href="#constructor-detail">Constructor</a>&nbsp;|&nbsp;<a href="#method-detail">Método</a></span>
+</div>
+
+<!-- ============================================================ CABECERA CLASE -->
+<header class="header">
+  <div class="inheritance">
+    <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Object.html">java.lang.Object</a>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<strong>ProyectoMeme</strong>
+  </div>
+  <h1 title="Clase ProyectoMeme">Clase ProyectoMeme</h1>
+  <pre class="member-signature"><span class="modifiers">public class </span><span class="member-name-link"><strong>ProyectoMeme</strong></span>
+extends <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Object.html">Object</a></pre>
+</header>
+
+<!-- ============================================================ DESCRIPCIÓN CLASE -->
+<section class="class-desc">
+  <div class="block">Juego <em>"Bulo o Realidad"</em>.</div>
+  <div class="block">El jugador ve un bulo y elige qué dato real lo desmiente. Se juegan 5 rondas; al final se guarda la puntuación si entra en el top 3 histórico.</div>
+  <div class="block">
+    Ficheros en <code>datos/</code>:
+    <ul>
+      <li><code>memes.txt</code> – un bulo por línea</li>
+      <li><code>realidades.json</code> – campo <code>"texto"</code> por objeto</li>
+      <li><code>soluciones.xml</code> – elementos <code>&lt;solucion bulo="X" realidad="Y"/&gt;</code></li>
+    </ul>
+    Ranking en <code>resultados/mejores.txt</code> con formato <code>NOMBRE;PUNTOS</code>.
+  </div>
+  <dl class="notes">
+    <dt>Versión:</dt>  <dd>3.0</dd>
+    <dt>Autor:</dt>    <dd>Equipo ProyectoMeme</dd>
+  </dl>
+</section>
+
+<!-- ============================================================ RESUMEN CAMPOS -->
+<section class="summary-section">
+  <h2 id="field-summary">Resumen de campos</h2>
+  <table class="summary-table">
+    <thead>
+      <tr><th class="col-first">Modificador y tipo</th><th class="col-last">Campo y descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&gt;</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#bulos">bulos</a></span></code><br>Bulos cargados de <code>datos/memes.txt</code>.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&gt;</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#bulosUsados">bulosUsados</a></span></code><br>Bulos ya usados en la partida actual para no repetirlos.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a></code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#puntosFinales">puntosFinales</a></span></code><br>Puntos obtenidos en la partida. Lo usan HU8, HU9 y HU10.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&gt;</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#realidades">realidades</a></span></code><br>Realidades cargadas de <code>datos/realidades.json</code>.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/HashMap.html">HashMap</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>,<wbr><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&gt;</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#soluciones">soluciones</a></span></code><br>Mapa bulo→realidad correcta (índices base 0).</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/Scanner.html">Scanner</a></code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#teclado">teclado</a></span></code><br>Entrada de teclado del jugador.</td>
+      </tr>
+    </tbody>
+  </table>
+
+<!-- ============================================================ RESUMEN MÉTODOS -->
+  <h2 id="method-summary">Resumen de métodos</h2>
+  <h3>Métodos estáticos</h3>
+  <table class="summary-table">
+    <thead>
+      <tr><th class="col-first">Modificador y tipo</th><th class="col-last">Método y descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&gt;</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#cargarRealidades()">cargarRealidades</a>()</code><br><strong>HU4</strong> – Lee <code>datos/realidades.json</code> y extrae el valor del campo <code>"texto"</code> de cada objeto.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/HashMap.html">HashMap</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>,<wbr><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&gt;</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#cargarSoluciones()">cargarSoluciones</a>()</code><br>Lee <code>datos/soluciones.xml</code> y construye el mapa bulo→realidad.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#cargarBulos()">cargarBulos</a>()</code><br><strong>HU3</strong> – Lee <code>datos/memes.txt</code> y guarda cada línea no vacía como un bulo en <code>bulos</code>.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#crearCarpetaResultadosSiFalta()">crearCarpetaResultadosSiFalta</a>()</code><br><strong>HU2</strong> – Crea <code>resultados/</code> y <code>resultados/mejores.txt</code> si todavía no existen.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a></code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#elegirYMostrarBulo()">elegirYMostrarBulo</a>()</code><br><strong>HU5</strong> – Elige un bulo al azar que aún no haya salido y lo muestra junto con la lista de realidades.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Boolean.html">Boolean</a></code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#esCorrecta(Integer,Integer)">esCorrecta</a>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;indiceBulo, <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;opcionJugador)</code><br><strong>HU6</strong> – Comprueba si la opción del jugador coincide con la solución registrada para ese bulo.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Boolean.html">Boolean</a></code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#existenFicherosNecesarios()">existenFicherosNecesarios</a>()</code><br><strong>HU1</strong> – Verifica que existe la carpeta <code>datos/</code> y los tres ficheros necesarios.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a></code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#extraerAtributo(String,String)">extraerAtributo</a>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&nbsp;linea, <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&nbsp;nombre)</code><br>Extrae el valor entero de un atributo XML de la forma <code>nombre="valor"</code>.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#guardarEnRankingSiProcede()">guardarEnRankingSiProcede</a>()</code><br><strong>HU9</strong> – Si la puntuación entra en el top 3, pide el nombre al jugador y actualiza <code>resultados/mejores.txt</code>.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#jugarPartida()">jugarPartida</a>()</code><br><strong>HU7</strong> – Ejecuta 5 rondas: muestra un bulo, recoge la respuesta, informa del acierto y actualiza el marcador.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#main(String[])">main</a>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>[]&nbsp;args)</code><br>Ejecuta el juego en orden: carga datos, juega, muestra resultado y actualiza el ranking.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#mostrarMarcador(Integer,Integer)">mostrarMarcador</a>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;puntos, <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;ronda)</code><br>Muestra el marcador tras cada ronda y espera ENTER si quedan más rondas.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#mostrarPuntuacionFinal()">mostrarPuntuacionFinal</a>()</code><br><strong>HU8</strong> – Muestra los puntos obtenidos, un mensaje según el resultado y el porcentaje de aciertos.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static void</code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#mostrarRankingYDespedirse()">mostrarRankingYDespedirse</a>()</code><br><strong>HU10</strong> – Muestra el ranking de mejores puntuaciones y se despide. Si el fichero está vacío lo indica.</td>
+      </tr>
+      <tr>
+        <td class="col-first"><code>static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a></code></td>
+        <td class="col-last"><code><span class="member-name-link"><a href="#pedirOpcionAlJugador(Integer)">pedirOpcionAlJugador</a>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;totalOpciones)</code><br><strong>HU6</strong> – Pide al jugador un número entre 1 y <code>totalOpciones</code>. Repite la pregunta hasta recibir una entrada válida.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:12px;margin-top:4px;">Métodos heredados de la clase&nbsp;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Object.html">java.lang.Object</a>: <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</code></p>
+</section>
+
+<!-- ============================================================ DETALLE CAMPOS -->
+<section class="detail-section">
+  <h2 id="field-detail">Detalle de campos</h2>
+
+  <div class="member-detail" id="bulos">
+    <h4>bulos</h4>
+    <div class="field-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&gt; bulos</div>
+    <div class="block">Bulos cargados de <code>datos/memes.txt</code>.</div>
+  </div>
+
+  <div class="member-detail" id="realidades">
+    <h4>realidades</h4>
+    <div class="field-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&gt; realidades</div>
+    <div class="block">Realidades cargadas de <code>datos/realidades.json</code>.</div>
+  </div>
+
+  <div class="member-detail" id="soluciones">
+    <h4>soluciones</h4>
+    <div class="field-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/HashMap.html">HashMap</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>,<wbr><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&gt; soluciones</div>
+    <div class="block">Mapa bulo→realidad correcta (índices base 0).</div>
+  </div>
+
+  <div class="member-detail" id="bulosUsados">
+    <h4>bulosUsados</h4>
+    <div class="field-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&gt; bulosUsados</div>
+    <div class="block">Bulos ya usados en la partida actual para no repetirlos.</div>
+  </div>
+
+  <div class="member-detail" id="puntosFinales">
+    <h4>puntosFinales</h4>
+    <div class="field-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a> puntosFinales</div>
+    <div class="block">Puntos obtenidos en la partida. Lo usan HU8, HU9 y HU10.</div>
+  </div>
+
+  <div class="member-detail" id="teclado">
+    <h4>teclado</h4>
+    <div class="field-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/Scanner.html">Scanner</a> teclado</div>
+    <div class="block">Entrada de teclado del jugador.</div>
+  </div>
+</section>
+
+<!-- ============================================================ DETALLE MÉTODOS -->
+<section class="detail-section">
+  <h2 id="method-detail">Detalle de métodos</h2>
+
+  <!-- main -->
+  <div class="member-detail" id="main(String[])">
+    <h4>main</h4>
+    <div class="member-signature">public static void <span class="member-name-link">main</span>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>[]&nbsp;args)
+       throws <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Exception.html">Exception</a></div>
+    <div class="block">Ejecuta el juego en orden: carga datos, juega, muestra resultado y actualiza el ranking.</div>
+    <dl class="notes">
+      <dt class="param-label">Parámetros:</dt>
+      <dd><code>args</code> – No se usan.</dd>
+      <dt class="throws-label">Lanza:</dt>
+      <dd><code><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Exception.html">Exception</a></code> – Si falla alguna lectura o escritura de fichero.</dd>
+    </dl>
+  </div>
+
+  <!-- existenFicherosNecesarios -->
+  <div class="member-detail" id="existenFicherosNecesarios()">
+    <h4>existenFicherosNecesarios</h4>
+    <div class="member-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Boolean.html">Boolean</a> <span class="member-name-link">existenFicherosNecesarios</span>()</div>
+    <div class="block"><strong>HU1</strong> – Verifica que existe la carpeta <code>datos/</code> y los tres ficheros necesarios. Informa de cada uno por pantalla.</div>
+    <dl class="notes">
+      <dt class="return-label">Devuelve:</dt>
+      <dd><code>true</code> si todo está presente; <code>false</code> si falta algo.</dd>
+    </dl>
+  </div>
+
+  <!-- crearCarpetaResultadosSiFalta -->
+  <div class="member-detail" id="crearCarpetaResultadosSiFalta()">
+    <h4>crearCarpetaResultadosSiFalta</h4>
+    <div class="member-signature">public static void <span class="member-name-link">crearCarpetaResultadosSiFalta</span>()
+       throws <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></div>
+    <div class="block"><strong>HU2</strong> – Crea <code>resultados/</code> y <code>resultados/mejores.txt</code> si todavía no existen. Si ya están presentes no hace nada.</div>
+    <dl class="notes">
+      <dt class="throws-label">Lanza:</dt>
+      <dd><code><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></code> – Si no puede crear la carpeta o el fichero.</dd>
+    </dl>
+  </div>
+
+  <!-- cargarBulos -->
+  <div class="member-detail" id="cargarBulos()">
+    <h4>cargarBulos</h4>
+    <div class="member-signature">public static void <span class="member-name-link">cargarBulos</span>()
+       throws <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></div>
+    <div class="block"><strong>HU3</strong> – Lee <code>datos/memes.txt</code> y guarda cada línea no vacía como un bulo en <a href="#bulos"><code>bulos</code></a>.</div>
+    <dl class="notes">
+      <dt class="throws-label">Lanza:</dt>
+      <dd><code><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></code> – Si el fichero no puede leerse.</dd>
+    </dl>
+  </div>
+
+  <!-- cargarRealidades -->
+  <div class="member-detail" id="cargarRealidades()">
+    <h4>cargarRealidades</h4>
+    <div class="member-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/ArrayList.html">ArrayList</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&gt; <span class="member-name-link">cargarRealidades</span>()
+       throws <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></div>
+    <div class="block"><strong>HU4</strong> – Lee <code>datos/realidades.json</code> y extrae el valor del campo <code>"texto"</code> de cada objeto (análisis manual, sin librería externa).</div>
+    <div class="block">Formato esperado: <code>{"id": 0, "texto": "La realidad..."}</code> con un objeto por línea.</div>
+    <dl class="notes">
+      <dt class="return-label">Devuelve:</dt>
+      <dd>Lista de textos de realidades en el orden del fichero.</dd>
+      <dt class="throws-label">Lanza:</dt>
+      <dd><code><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></code> – Si el fichero no puede leerse.</dd>
+    </dl>
+  </div>
+
+  <!-- cargarSoluciones -->
+  <div class="member-detail" id="cargarSoluciones()">
+    <h4>cargarSoluciones</h4>
+    <div class="member-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/util/HashMap.html">HashMap</a>&lt;<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>,<wbr><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&gt; <span class="member-name-link">cargarSoluciones</span>()
+       throws <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></div>
+    <div class="block">Lee <code>datos/soluciones.xml</code> y construye el mapa bulo→realidad.</div>
+    <div class="block">Formato esperado: <code>&lt;solucion bulo="0" realidad="2"/&gt;</code>.</div>
+    <dl class="notes">
+      <dt class="return-label">Devuelve:</dt>
+      <dd>Mapa con índices base 0.</dd>
+      <dt class="throws-label">Lanza:</dt>
+      <dd><code><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></code> – Si el fichero no puede leerse.</dd>
+    </dl>
+  </div>
+
+  <!-- extraerAtributo -->
+  <div class="member-detail" id="extraerAtributo(String,String)">
+    <h4>extraerAtributo</h4>
+    <div class="member-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a> <span class="member-name-link">extraerAtributo</span>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&nbsp;linea,
+                                             <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/String.html">String</a>&nbsp;nombre)</div>
+    <div class="block">Extrae el valor entero de un atributo XML de la forma <code>nombre="valor"</code>.</div>
+    <dl class="notes">
+      <dt class="param-label">Parámetros:</dt>
+      <dd><code>linea</code> – Línea XML donde buscar.</dd>
+      <dd><code>nombre</code> – Nombre del atributo a extraer.</dd>
+      <dt class="return-label">Devuelve:</dt>
+      <dd>Valor del atributo como <code>Integer</code>.</dd>
+    </dl>
+  </div>
+
+  <!-- elegirYMostrarBulo -->
+  <div class="member-detail" id="elegirYMostrarBulo()">
+    <h4>elegirYMostrarBulo</h4>
+    <div class="member-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a> <span class="member-name-link">elegirYMostrarBulo</span>()</div>
+    <div class="block"><strong>HU5</strong> – Elige un bulo al azar que aún no haya salido, lo muestra y presenta la lista numerada de realidades. Registra el índice usado en <a href="#bulosUsados"><code>bulosUsados</code></a> para no repetirlo.</div>
+    <dl class="notes">
+      <dt class="return-label">Devuelve:</dt>
+      <dd>Índice (base 0) del bulo mostrado, o <code>-1</code> si no quedan.</dd>
+    </dl>
+  </div>
+
+  <!-- pedirOpcionAlJugador -->
+  <div class="member-detail" id="pedirOpcionAlJugador(Integer)">
+    <h4>pedirOpcionAlJugador</h4>
+    <div class="member-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a> <span class="member-name-link">pedirOpcionAlJugador</span>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;totalOpciones)</div>
+    <div class="block"><strong>HU6</strong> – Pide al jugador un número entre 1 y <code>totalOpciones</code>. Repite la pregunta hasta recibir una entrada válida.</div>
+    <dl class="notes">
+      <dt class="param-label">Parámetros:</dt>
+      <dd><code>totalOpciones</code> – Número de realidades disponibles.</dd>
+      <dt class="return-label">Devuelve:</dt>
+      <dd>Índice elegido en base 0.</dd>
+    </dl>
+  </div>
+
+  <!-- esCorrecta -->
+  <div class="member-detail" id="esCorrecta(Integer,Integer)">
+    <h4>esCorrecta</h4>
+    <div class="member-signature">public static <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Boolean.html">Boolean</a> <span class="member-name-link">esCorrecta</span>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;indiceBulo,
+                                      <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;opcionJugador)</div>
+    <div class="block"><strong>HU6</strong> – Comprueba si la opción del jugador coincide con la solución registrada para ese bulo.</div>
+    <dl class="notes">
+      <dt class="param-label">Parámetros:</dt>
+      <dd><code>indiceBulo</code> – Índice del bulo en pantalla.</dd>
+      <dd><code>opcionJugador</code> – Índice de la realidad elegida (base 0).</dd>
+      <dt class="return-label">Devuelve:</dt>
+      <dd><code>true</code> si es correcta; <code>false</code> en caso contrario.</dd>
+    </dl>
+  </div>
+
+  <!-- jugarPartida -->
+  <div class="member-detail" id="jugarPartida()">
+    <h4>jugarPartida</h4>
+    <div class="member-signature">public static void <span class="member-name-link">jugarPartida</span>()</div>
+    <div class="block"><strong>HU7</strong> – Ejecuta 5 rondas: muestra un bulo, recoge la respuesta, informa del acierto y actualiza el marcador. Guarda el resultado final en <a href="#puntosFinales"><code>puntosFinales</code></a>.</div>
+  </div>
+
+  <!-- mostrarMarcador -->
+  <div class="member-detail" id="mostrarMarcador(Integer,Integer)">
+    <h4>mostrarMarcador</h4>
+    <div class="member-signature">public static void <span class="member-name-link">mostrarMarcador</span>(<a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;puntos,
+                                      <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/lang/Integer.html">Integer</a>&nbsp;ronda)</div>
+    <div class="block">Muestra el marcador tras cada ronda y espera ENTER si quedan más rondas.</div>
+    <dl class="notes">
+      <dt class="param-label">Parámetros:</dt>
+      <dd><code>puntos</code> – Puntos acumulados.</dd>
+      <dd><code>ronda</code> – Ronda que se acaba de completar.</dd>
+    </dl>
+  </div>
+
+  <!-- mostrarPuntuacionFinal -->
+  <div class="member-detail" id="mostrarPuntuacionFinal()">
+    <h4>mostrarPuntuacionFinal</h4>
+    <div class="member-signature">public static void <span class="member-name-link">mostrarPuntuacionFinal</span>()</div>
+    <div class="block"><strong>HU8</strong> – Muestra los puntos obtenidos, un mensaje según el resultado y el porcentaje de aciertos.</div>
+  </div>
+
+  <!-- guardarEnRankingSiProcede -->
+  <div class="member-detail" id="guardarEnRankingSiProcede()">
+    <h4>guardarEnRankingSiProcede</h4>
+    <div class="member-signature">public static void <span class="member-name-link">guardarEnRankingSiProcede</span>()
+       throws <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></div>
+    <div class="block"><strong>HU9</strong> – Si la puntuación entra en el top 3, pide el nombre al jugador y actualiza <code>resultados/mejores.txt</code> conservando solo las tres mejores entradas ordenadas de mayor a menor.</div>
+    <dl class="notes">
+      <dt class="throws-label">Lanza:</dt>
+      <dd><code><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></code> – Si el fichero de ranking no puede leerse o escribirse.</dd>
+    </dl>
+  </div>
+
+  <!-- mostrarRankingYDespedirse -->
+  <div class="member-detail" id="mostrarRankingYDespedirse()">
+    <h4>mostrarRankingYDespedirse</h4>
+    <div class="member-signature">public static void <span class="member-name-link">mostrarRankingYDespedirse</span>()
+       throws <a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></div>
+    <div class="block"><strong>HU10</strong> – Muestra el ranking de mejores puntuaciones y se despide. Si el fichero está vacío lo indica.</div>
+    <dl class="notes">
+      <dt class="throws-label">Lanza:</dt>
+      <dd><code><a href="https://docs.oracle.com/en/java/se/21/docs/api/java.base/java/io/IOException.html">IOException</a></code> – Si el fichero de ranking no puede leerse.</dd>
+    </dl>
+  </div>
+
+</section>
+
+<!-- ============================================================ PIE -->
+<nav class="bottom-nav" role="navigation">
+  <span>Anterior&nbsp;Clase&nbsp;&nbsp;Siguiente&nbsp;Clase</span>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <span>Resumen:&nbsp;Campo&nbsp;|&nbsp;Constructor&nbsp;|&nbsp;Método</span>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <span>Detalle:&nbsp;Campo&nbsp;|&nbsp;Constructor&nbsp;|&nbsp;Método</span>
+</nav>
+<div class="legal-copy">
+  Copyright &#169; 2025 Equipo ProyectoMeme. Generado con javadoc 21.0.10.
+</div>
+
+</body>
+</html>
