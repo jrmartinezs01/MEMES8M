@@ -20,4 +20,4 @@ TT7
 
 Manual de instalacion      Juanrra  En proceso    
 Manual de usuario          Alberto  En proceso
-Manual del programador     Ivan     En proceso
+Manual del programador     Ivan     En proceso.
