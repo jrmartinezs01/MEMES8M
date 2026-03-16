@@ -18,22 +18,22 @@ import java.util.*;
 public class ProyectoMeme {
 
     /** Bulos leídos de {@code memes.txt}. */
-    static ArrayList<String> bulos = new ArrayList<>();
+    public static ArrayList<String> bulos = new ArrayList<>();
 
     /** Realidades leídas de {@code realidades.json}. */
-    static ArrayList<String> realidades = new ArrayList<>();
+    public static ArrayList<String> realidades = new ArrayList<>();
 
     /** Relaciona el índice de cada bulo con el índice de su realidad correcta. */
-    static HashMap<Integer, Integer> soluciones = new HashMap<>();
+    public static HashMap<Integer, Integer> soluciones = new HashMap<>();
 
     /** Bulos que ya han salido en esta partida para no repetirlos. */
-    static ArrayList<Integer> bulosUsados = new ArrayList<>();
+    public static ArrayList<Integer> bulosUsados = new ArrayList<>();
 
     /** Puntos conseguidos en la partida actual. */
-    static int puntos = 0;
+    public static int puntos = 0;
 
     /** Scanner para leer lo que escribe el jugador. */
-    static Scanner teclado = new Scanner(System.in);
+    public static Scanner teclado = new Scanner(System.in);
 
     // ------------------------------------------------------------------
 
@@ -76,14 +76,14 @@ public class ProyectoMeme {
      * @return {@code true} si todo está bien; {@code false} si falta algo.
      */
     public static boolean existenFicheros() {
-        Path carpeta = Paths.get("datos");
+        Path carpeta = Paths.get("..\\datos");
 
         if (!Files.isDirectory(carpeta)) {
             System.out.println("ERROR: no existe la carpeta 'datos'.");
             return false;
         }
 
-        boolean todoOk = true;
+        Boolean todoOk = true;
 
         String[] ficheros = {"memes.txt", "realidades.json", "soluciones.xml"};
         for (String fichero : ficheros) {
@@ -155,9 +155,9 @@ public class ProyectoMeme {
         for (String linea : lineas) {
             if (!linea.contains("\"texto\"")) continue;
 
-            int inicio = linea.indexOf("\"texto\"") + "\"texto\"".length();
-            int abre   = linea.indexOf('"', inicio + 1) + 1;
-            int cierra = linea.indexOf('"', abre);
+            Integer inicio = linea.indexOf("\"texto\"") + "\"texto\"".length();
+            Integer abre   = linea.indexOf('"', inicio + 1) + 1;
+            Integer cierra = linea.indexOf('"', abre);
             String texto = linea.substring(abre, cierra).trim();
 
             if (!texto.isBlank()) {
@@ -200,8 +200,8 @@ public class ProyectoMeme {
      * @return Valor del atributo como {@code Integer}.
      */
     public static Integer leerAtributo(String linea, String nombre) {
-        int inicio = linea.indexOf(nombre + "=\"") + nombre.length() + 2;
-        int fin    = linea.indexOf('"', inicio);
+        Integer inicio = linea.indexOf(nombre + "=\"") + nombre.length() + 2;
+        Integer fin = linea.indexOf('"', inicio);
         return Integer.parseInt(linea.substring(inicio, fin));
     }
 
