@@ -1,393 +1,641 @@
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Tests JUnit 5 para las HU1 a HU5 de ProyectoMeme.
+ * Clase principal del juego "Bulo o Realidad".
+ *
+ * <p>El jugador ve un bulo (meme falso) y tiene que elegir, de una lista
+ * numerada, qué dato real lo desmiente. Se juegan 5 rondas y al final
+ * se guarda la puntuación si es de las tres mejores.</p>
+ *
+ * <p>Ficheros que usa el programa:</p>
+ * <ul>
+ *   <li>{@code datos/memes.txt}        – un bulo por línea</li>
+ *   <li>{@code datos/realidades.json}  – objetos con campo "texto"</li>
+ *   <li>{@code datos/soluciones.xml}   – relación bulo-realidad</li>
+ *   <li>{@code resultados/mejores.txt} – ranking de los tres mejores</li>
+ * </ul>
+ *
+ * @author Nombre Apellido
+ * @version 1.0
  */
-class ProyectoMemeTest {
+public class ProyectoMeme {
 
-    @TempDir
-    Path tempDir;
+    /** Bulos leídos de memes.txt. */
+    static ArrayList<String> listaDeBulos = new ArrayList<>();
 
-    // =========================================================================
-    // HU1 - comprobarArchivosIniciales
-    // =========================================================================
+    /** Realidades leídas de realidades.json. */
+    static ArrayList<String> listaDeRealidades = new ArrayList<>();
 
-    @Nested
-    @DisplayName("HU1 - Comprobar archivos iniciales")
-    class HU1Test {
+    /** Clave: índice del bulo. Valor: índice de la realidad correcta (base 0). */
+    static HashMap<Integer, Integer> mapaSoluciones = new HashMap<>();
 
-        /**
-         * Replica la lógica de HU1 usando una ruta base inyectada
-         * para no depender del sistema de ficheros real del proyecto.
-         */
-        private boolean comprobarArchivos(Path rutaDatos) {
-            if (!Files.exists(rutaDatos))      return false;
-            if (!Files.isDirectory(rutaDatos)) return false;
-            for (String archivo : new String[]{"memes.txt", "realidades.json", "soluciones.xml"}) {
-                Path ruta = rutaDatos.resolve(archivo);
-                if (!Files.exists(ruta) || !Files.isRegularFile(ruta)) return false;
+    /** Para leer la entrada del usuario por teclado. */
+    static Scanner teclado = new Scanner(System.in);
+
+    /** Índices de los bulos que ya han salido, para no repetirlos. */
+    static ArrayList<Integer> bulosUsados = new ArrayList<>();
+
+    /** Puntos que ha sacado el jugador en la partida (se rellena en jugarPartida). */
+    static Integer puntuacionFinal = 0;
+
+
+    // -------------------------------------------------------------------------
+    // MAIN
+    // -------------------------------------------------------------------------
+
+    /**
+     * Punto de entrada del programa. Llama a cada historia de usuario
+     * en orden y cierra el scanner al terminar.
+     *
+     * @param args argumentos de línea de comandos (no se usan)
+     * @throws Exception si ocurre cualquier error de lectura/escritura
+     */
+    public static void main(String[] args) throws Exception {
+
+        System.out.println("=== Bulo o Realidad ===");
+
+        // HU1 – sin los ficheros de datos no tiene sentido continuar
+        if (!comprobarArchivosIniciales()) {
+            System.out.println("El programa no puede continuar.");
+            return;
+        }
+
+        crearDirectorioResultados(); // HU2 – crea resultados/ y mejores.txt si no existen
+
+        cargarBulos(); // HU3 – carga los bulos en listaDeBulos
+
+        // HU4 – cargamos realidades y soluciones desde sus ficheros
+        listaDeRealidades = leerRealidades("datos/realidades.json");
+        System.out.println("Realidades cargadas: " + listaDeRealidades.size());
+
+        mapaSoluciones = leerSoluciones("datos/soluciones.xml");
+        System.out.println("Soluciones cargadas: " + mapaSoluciones.size());
+
+        jugarPartida(); // HU7 – bucle principal: 5 rondas con marcador
+
+        mostrarPuntuacionFinal(); // HU8 – muestra el resultado al terminar
+
+        guardarPuntuacionSiEsMejor(); // HU9 – guarda si entra en el top 3
+
+        mostrarRankingYDespedirse(); // HU10 – muestra el ranking y se despide
+
+        teclado.close();
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU1
+    // -------------------------------------------------------------------------
+
+    /**
+     * Comprueba que exista la carpeta {@code datos} y los tres ficheros
+     * necesarios para que el juego funcione.
+     *
+     * <p>Si falta alguno muestra un mensaje de error por pantalla pero
+     * sigue revisando el resto para informar de todos los problemas
+     * de una sola vez.</p>
+     *
+     * @return {@code true} si todo está en orden, {@code false} si falta algo
+     */
+    public static Boolean comprobarArchivosIniciales() {
+
+        Path carpetaDatos = Paths.get("datos");
+
+        if (!Files.exists(carpetaDatos) || !Files.isDirectory(carpetaDatos)) {
+            System.out.println("ERROR: No existe la carpeta 'datos'");
+            return false;
+        }
+
+        String[] nombresFicheros = { "memes.txt", "realidades.json", "soluciones.xml" };
+        Boolean todosPresentes = true;
+
+        for (String nombreFichero : nombresFicheros) {
+            Path rutaFichero = carpetaDatos.resolve(nombreFichero);
+            if (!Files.exists(rutaFichero)) {
+                System.out.println("ERROR: Falta el fichero " + nombreFichero);
+                todosPresentes = false;
+            } else {
+                System.out.println("OK: " + nombreFichero);
             }
+        }
+
+        return todosPresentes;
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU2
+    // -------------------------------------------------------------------------
+
+    /**
+     * Crea la carpeta {@code resultados} y el fichero {@code mejores.txt}
+     * si todavía no existen. Si ya existen no hace nada.
+     *
+     * @throws IOException si no se puede crear la carpeta o el fichero
+     */
+    public static void crearDirectorioResultados() throws IOException {
+
+        Path carpetaResultados = Paths.get("resultados");
+        Path ficheroMejores    = Paths.get("resultados/mejores.txt");
+
+        if (!Files.exists(carpetaResultados)) {
+            Files.createDirectories(carpetaResultados);
+        }
+
+        if (!Files.exists(ficheroMejores)) {
+            Files.createFile(ficheroMejores);
+        }
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU3
+    // -------------------------------------------------------------------------
+
+    /**
+     * Lee el fichero {@code datos/memes.txt} línea a línea y guarda cada
+     * bulo en {@link #listaDeBulos}. Las líneas en blanco se ignoran.
+     *
+     * @throws IOException si el fichero no se puede leer
+     */
+    public static void cargarBulos() throws IOException {
+
+        Path rutaMemes = Paths.get("datos/memes.txt");
+        listaDeBulos = new ArrayList<>(Files.readAllLines(rutaMemes));
+        listaDeBulos.removeIf(String::isBlank);
+        System.out.println("Bulos cargados: " + listaDeBulos.size());
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU4 – lectura del JSON sin librerías externas
+    // -------------------------------------------------------------------------
+
+    /**
+     * Lee el fichero JSON de realidades y extrae el valor del campo
+     * {@code "texto"} de cada objeto.
+     *
+     * <p>El parseo es manual (sin librerías) porque el formato es sencillo
+     * y predecible: una propiedad {@code "texto"} por línea.</p>
+     *
+     * @param rutaFichero ruta al fichero {@code realidades.json}
+     * @return lista con el texto de cada realidad en el mismo orden que
+     *         aparece en el fichero
+     * @throws IOException si el fichero no se puede leer
+     */
+    public static ArrayList<String> leerRealidades(String rutaFichero) throws IOException {
+
+        List<String> lineas       = Files.readAllLines(Paths.get(rutaFichero));
+        ArrayList<String> textos  = new ArrayList<>();
+
+        for (String linea : lineas) {
+            linea = linea.trim();
+
+            if (!linea.contains("\"texto\"")) {
+                continue;
+            }
+
+            // Localizar el valor entre las comillas que siguen a la clave "texto"
+            Integer posicionTrasLlave      = linea.indexOf("\"texto\"") + "\"texto\"".length();
+            Integer posicionAbreComillas   = linea.indexOf('"', posicionTrasLlave + 1) + 1;
+            Integer posicionCierraComillas = linea.indexOf('"', posicionAbreComillas);
+            String textoExtraido = linea.substring(posicionAbreComillas, posicionCierraComillas).trim();
+
+            if (!textoExtraido.isBlank()) {
+                textos.add(textoExtraido);
+            }
+        }
+
+        return textos;
+    }
+
+
+    /**
+     * Lee el fichero XML de soluciones y construye un mapa que relaciona
+     * el índice de cada bulo con el índice de su realidad correcta.
+     *
+     * <p>Formato esperado de cada línea significativa:</p>
+     * <pre>{@code <solucion bulo="0" realidad="2"/>}</pre>
+     * <p>Ambos índices son base 0, igual que las listas internas.</p>
+     *
+     * @param rutaFichero ruta al fichero {@code soluciones.xml}
+     * @return mapa {@code indiceBulo -> indiceRealidad}
+     * @throws IOException si el fichero no se puede leer
+     */
+    public static HashMap<Integer, Integer> leerSoluciones(String rutaFichero) throws IOException {
+
+        List<String> lineas = Files.readAllLines(Paths.get(rutaFichero));
+        HashMap<Integer, Integer> soluciones = new HashMap<>();
+
+        for (String linea : lineas) {
+            linea = linea.trim();
+
+            if (!linea.startsWith("<solucion")) {
+                continue;
+            }
+
+            // Extraer el valor del atributo bulo="X"
+            String atributoBulo         = "bulo=\"";
+            Integer posicionInicioBulo  = linea.indexOf(atributoBulo) + atributoBulo.length();
+            Integer posicionFinBulo     = linea.indexOf('"', posicionInicioBulo);
+            Integer indiceBulo          = Integer.parseInt(linea.substring(posicionInicioBulo, posicionFinBulo));
+
+            // Extraer el valor del atributo realidad="X"
+            String atributoRealidad        = "realidad=\"";
+            Integer posicionInicioRealidad = linea.indexOf(atributoRealidad) + atributoRealidad.length();
+            Integer posicionFinRealidad    = linea.indexOf('"', posicionInicioRealidad);
+            Integer indiceRealidad         = Integer.parseInt(linea.substring(posicionInicioRealidad, posicionFinRealidad));
+
+            soluciones.put(indiceBulo, indiceRealidad);
+        }
+
+        return soluciones;
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU5
+    // -------------------------------------------------------------------------
+
+    /**
+     * Elige un bulo al azar que no se haya mostrado todavía y presenta
+     * la lista numerada de realidades para que el jugador elija.
+     *
+     * <p>El índice del bulo elegido se añade a {@link #bulosUsados}
+     * para evitar repeticiones en rondas posteriores.</p>
+     *
+     * @param listaBulos      lista completa de bulos disponibles
+     * @param listaRealidades lista de realidades que se mostrarán al jugador
+     * @return índice (base 0) del bulo que se ha mostrado,
+     *         o {@code -1} si ya se han agotado todos los bulos
+     */
+    public static Integer mostrarBuloYRealidades(List<String> listaBulos, List<String> listaRealidades) {
+
+        if (bulosUsados.size() >= listaBulos.size()) {
+            System.out.println("No quedan bulos por mostrar.");
+            return -1;
+        }
+
+        // Elegir un índice aleatorio que no hayamos usado ya
+        Random generadorAleatorio = new Random();
+        Integer indiceBuloElegido = generadorAleatorio.nextInt(listaBulos.size());
+        while (bulosUsados.contains(indiceBuloElegido)) {
+            indiceBuloElegido = generadorAleatorio.nextInt(listaBulos.size());
+        }
+        bulosUsados.add(indiceBuloElegido);
+
+        System.out.println("\n=================================================");
+        System.out.println("BULO: " + listaBulos.get(indiceBuloElegido));
+        System.out.println("\n¿Qué dato real desmiente este bulo?");
+        System.out.println("-------------------------------------------------");
+
+        for (int i = 0; i < listaRealidades.size(); i++) {
+            System.out.println((i + 1) + ". " + listaRealidades.get(i));
+        }
+        System.out.println("=================================================");
+
+        return indiceBuloElegido;
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU6
+    // -------------------------------------------------------------------------
+
+    /**
+     * Pide al usuario que introduzca un número entre 1 y
+     * {@code totalOpciones}. Si escribe algo que no es un número
+     * o está fuera de rango, vuelve a pedirlo hasta que sea válido.
+     *
+     * @param totalOpciones número de realidades disponibles para elegir
+     * @return índice elegido en base 0 (lo que el usuario ve como 1 se
+     *         devuelve como 0, etc.)
+     */
+    public static Integer pedirRespuestaUsuario(Integer totalOpciones) {
+
+        Integer opcionElegida = null;
+
+        while (opcionElegida == null) {
+            System.out.print("Tu elección (1-" + totalOpciones + "): ");
+            String entradaTeclado = teclado.nextLine().trim();
+
+            try {
+                opcionElegida = Integer.parseInt(entradaTeclado);
+                if (opcionElegida < 1 || opcionElegida > totalOpciones) {
+                    System.out.println("Número fuera de rango. Elige entre 1 y " + totalOpciones);
+                    opcionElegida = null;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Eso no es un número. Inténtalo de nuevo.");
+            }
+        }
+
+        // Convertimos a base 0 para comparar con el mapa de soluciones
+        return opcionElegida - 1;
+    }
+
+
+    /**
+     * Consulta en {@link #mapaSoluciones} si el índice de realidad que ha
+     * elegido el usuario coincide con la respuesta correcta para ese bulo.
+     *
+     * @param indiceBulo       índice (base 0) del bulo que se estaba mostrando
+     * @param respuestaUsuario índice (base 0) de la realidad elegida
+     * @return {@code true} si la respuesta es correcta, {@code false} si no
+     */
+    public static Boolean comprobarRespuesta(Integer indiceBulo, Integer respuestaUsuario) {
+
+        Integer respuestaCorrecta = mapaSoluciones.get(indiceBulo);
+
+        if (respuestaCorrecta == null) {
+            System.out.println("No hay solución registrada para este bulo.");
+            return false;
+        }
+
+        return respuestaCorrecta.equals(respuestaUsuario);
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU7
+    // -------------------------------------------------------------------------
+
+    /**
+     * Controla el bucle principal del juego: 5 rondas consecutivas.
+     * Después de cada ronda llama a {@link #mostrarMarcador} para que
+     * el jugador sepa cómo va. Al terminar guarda el resultado en
+     * {@link #puntuacionFinal}.
+     */
+    public static void jugarPartida() {
+
+        Integer rondasJugadas   = 0;
+        Integer puntuacionTotal = 0;
+        bulosUsados.clear();
+
+        while (rondasJugadas < 5) {
+
+            System.out.println("\n=== RONDA " + (rondasJugadas + 1) + " DE 5 ===");
+
+            Integer indiceBuloActual = mostrarBuloYRealidades(listaDeBulos, listaDeRealidades);
+
+            if (indiceBuloActual == -1) {
+                break; // se agotaron los bulos antes de llegar a 5
+            }
+
+            Integer respuestaJugador = pedirRespuestaUsuario(listaDeRealidades.size());
+            Boolean esCorrecta       = comprobarRespuesta(indiceBuloActual, respuestaJugador);
+
+            if (esCorrecta) {
+                System.out.println("Correcto!");
+                puntuacionTotal++;
+            } else {
+                Integer respuestaCorrecta = mapaSoluciones.get(indiceBuloActual);
+                if (respuestaCorrecta != null) {
+                    System.out.println("Incorrecto. La respuesta correcta era la " + (respuestaCorrecta + 1));
+                } else {
+                    System.out.println("Incorrecto.");
+                }
+            }
+
+            rondasJugadas++;
+            mostrarMarcador(puntuacionTotal, rondasJugadas);
+        }
+
+        puntuacionFinal = puntuacionTotal;
+    }
+
+
+    /**
+     * Muestra por pantalla el marcador actual con los puntos conseguidos
+     * y las rondas que quedan. Si la partida no ha terminado, espera a
+     * que el jugador pulse ENTER antes de continuar.
+     *
+     * @param puntosActuales  puntos acumulados hasta este momento
+     * @param rondasJugadas   número de rondas ya completadas
+     */
+    public static void mostrarMarcador(Integer puntosActuales, Integer rondasJugadas) {
+
+        System.out.println("\n--- MARCADOR ---");
+        System.out.println("Puntos: " + puntosActuales + "/" + rondasJugadas);
+        System.out.println("Rondas restantes: " + (5 - rondasJugadas));
+        System.out.println("----------------");
+
+        if (rondasJugadas < 5) {
+            System.out.println("Presiona ENTER para continuar...");
+            teclado.nextLine();
+        }
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU8
+    // -------------------------------------------------------------------------
+
+    /**
+     * Muestra la puntuación final de la partida junto con un mensaje
+     * motivacional según el resultado y el porcentaje de aciertos.
+     */
+    public static void mostrarPuntuacionFinal() {
+
+        System.out.println("\n=== PUNTUACION FINAL ===");
+        System.out.println("Has conseguido " + puntuacionFinal + " de 5 puntos.");
+
+        if (puntuacionFinal == 5) {
+            System.out.println("¡Perfecto! Has acertado todo.");
+        } else if (puntuacionFinal >= 3) {
+            System.out.println("¡Bien! Buena puntuación.");
+        } else if (puntuacionFinal >= 1) {
+            System.out.println("Puedes mejorar la próxima vez.");
+        } else {
+            System.out.println("¡Ánimo! La próxima irá mejor.");
+        }
+
+        Double porcentajeAciertos = (puntuacionFinal * 100.0) / 5.0;
+        System.out.printf("Porcentaje de aciertos: %.1f%%%n", porcentajeAciertos);
+    }
+
+
+    // -------------------------------------------------------------------------
+    // HU9
+    // -------------------------------------------------------------------------
+
+    /**
+     * Comprueba si la puntuación de la partida recién jugada merece estar
+     * en el top 3. Si es así, pide el nombre al jugador, añade la entrada
+     * al ranking y guarda los tres mejores en {@code resultados/mejores.txt}.
+     *
+     * <p>Si el jugador no escribe nada, su nombre se guarda como "Anonimo".</p>
+     *
+     * @throws IOException si no se puede leer o escribir el fichero de mejores
+     */
+    public static void guardarPuntuacionSiEsMejor() throws IOException {
+
+        Path ficheroMejores          = Paths.get("resultados/mejores.txt");
+        ArrayList<String> ranking    = leerMejores(ficheroMejores);
+
+        if (estaEnTop3(ranking, puntuacionFinal)) {
+
+            System.out.println("\n¡Enhorabuena! Tu puntuación está entre las 3 mejores.");
+            System.out.print("Introduce tu nombre: ");
+            String nombreJugador = teclado.nextLine().trim();
+
+            if (nombreJugador.isBlank()) {
+                nombreJugador = "Anonimo";
+            }
+
+            ranking.add(nombreJugador + ";" + puntuacionFinal);
+            ordenarPuntuaciones(ranking);
+            guardarTop3(ficheroMejores, ranking);
+
+        } else {
+            System.out.println("\nTu puntuación no está entre las 3 mejores. ¡Sigue intentándolo!");
+        }
+    }
+
+
+    /**
+     * Lee el fichero {@code mejores.txt} y devuelve sus líneas en una lista,
+     * ignorando las que estén vacías.
+     *
+     * <p>Formato de cada línea: {@code nombre;puntuacion}</p>
+     *
+     * @param ficheroRanking ruta al fichero de mejores puntuaciones
+     * @return lista de entradas del ranking (puede estar vacía si el
+     *         fichero no tiene contenido todavía)
+     * @throws IOException si el fichero no se puede leer
+     */
+    public static ArrayList<String> leerMejores(Path ficheroRanking) throws IOException {
+        ArrayList<String> entradasRanking = new ArrayList<>(Files.readAllLines(ficheroRanking));
+        entradasRanking.removeIf(String::isBlank);
+        return entradasRanking;
+    }
+
+
+    /**
+     * Determina si una puntuación dada merece entrar en el top 3.
+     *
+     * <p>Si el ranking tiene menos de 3 entradas siempre entra.
+     * Si ya tiene 3, solo entra si supera estrictamente a la tercera
+     * (en caso de empate no se guarda).</p>
+     *
+     * @param entradasRanking entradas actuales del ranking (formato {@code nombre;puntuacion})
+     * @param puntuacionNueva puntuación a comparar con el ranking actual
+     * @return {@code true} si la puntuación entra en el top 3
+     */
+    public static Boolean estaEnTop3(ArrayList<String> entradasRanking, Integer puntuacionNueva) {
+
+        if (entradasRanking.size() < 3) {
             return true;
         }
 
-        @Test
-        @DisplayName("Devuelve true cuando existen carpeta y los 3 ficheros")
-        void todoCorrecto() throws Exception {
-            Path datos = tempDir.resolve("datos");
-            Files.createDirectories(datos);
-            Files.createFile(datos.resolve("memes.txt"));
-            Files.createFile(datos.resolve("realidades.json"));
-            Files.createFile(datos.resolve("soluciones.xml"));
-            assertTrue(comprobarArchivos(datos));
-        }
-
-        @Test
-        @DisplayName("Devuelve false cuando no existe la carpeta datos")
-        void faltaCarpeta() {
-            assertFalse(comprobarArchivos(tempDir.resolve("no_existe")));
-        }
-
-        @Test
-        @DisplayName("Devuelve false cuando falta memes.txt")
-        void faltaMemes() throws Exception {
-            Path datos = tempDir.resolve("datos");
-            Files.createDirectories(datos);
-            Files.createFile(datos.resolve("realidades.json"));
-            Files.createFile(datos.resolve("soluciones.xml"));
-            assertFalse(comprobarArchivos(datos));
-        }
-
-        @Test
-        @DisplayName("Devuelve false cuando falta realidades.json")
-        void faltaRealidades() throws Exception {
-            Path datos = tempDir.resolve("datos");
-            Files.createDirectories(datos);
-            Files.createFile(datos.resolve("memes.txt"));
-            Files.createFile(datos.resolve("soluciones.xml"));
-            assertFalse(comprobarArchivos(datos));
-        }
-
-        @Test
-        @DisplayName("Devuelve false cuando falta soluciones.xml")
-        void faltaSoluciones() throws Exception {
-            Path datos = tempDir.resolve("datos");
-            Files.createDirectories(datos);
-            Files.createFile(datos.resolve("memes.txt"));
-            Files.createFile(datos.resolve("realidades.json"));
-            assertFalse(comprobarArchivos(datos));
-        }
+        // Ordenamos para asegurarnos de que get(2) es realmente el tercero
+        ordenarPuntuaciones(entradasRanking);
+        Integer puntuacionTercero = extraerPuntuacion(entradasRanking.get(2));
+        return puntuacionNueva > puntuacionTercero;
     }
 
-    // =========================================================================
-    // HU2 - hu2
-    // =========================================================================
 
-    @Nested
-    @DisplayName("HU2 - Crear directorio y fichero de resultados")
-    class HU2Test {
+    /**
+     * Ordena la lista del ranking de mayor a menor puntuación usando
+     * el algoritmo de burbuja.
+     *
+     * <p>Se modifica la lista original directamente, no se devuelve nada.</p>
+     *
+     * @param entradasRanking lista de entradas en formato {@code nombre;puntuacion}
+     */
+    public static void ordenarPuntuaciones(ArrayList<String> entradasRanking) {
 
-        private Path dir;
-        private Path fichero;
+        Integer totalEntradas = entradasRanking.size();
 
-        @BeforeEach
-        void setUp() {
-            dir     = tempDir.resolve("resultados");
-            fichero = dir.resolve("mejores.txt");
-        }
-
-        /** Replica la lógica de hu2() usando rutas inyectadas. */
-        private void hu2(Path d, Path f) throws Exception {
-            if (!Files.exists(d)) Files.createDirectories(d);
-            if (!Files.exists(f)) Files.createFile(f);
-        }
-
-        @Test
-        @DisplayName("Crea el directorio si no existe")
-        void creaDirectorio() throws Exception {
-            assertFalse(Files.exists(dir));
-            hu2(dir, fichero);
-            assertTrue(Files.isDirectory(dir));
-        }
-
-        @Test
-        @DisplayName("Crea mejores.txt si no existe")
-        void creaFichero() throws Exception {
-            hu2(dir, fichero);
-            assertTrue(Files.isRegularFile(fichero));
-        }
-
-        @Test
-        @DisplayName("El fichero nuevo está vacío")
-        void ficheroVacio() throws Exception {
-            hu2(dir, fichero);
-            assertEquals(0, Files.size(fichero));
-        }
-
-        @Test
-        @DisplayName("No sobreescribe mejores.txt si ya tiene contenido")
-        void noSobreescribe() throws Exception {
-            Files.createDirectories(dir);
-            Files.writeString(fichero, "Ana;5");
-            hu2(dir, fichero);
-            assertEquals("Ana;5", Files.readString(fichero));
-        }
-
-        @Test
-        @DisplayName("No lanza excepción si el directorio y el fichero ya existen")
-        void noLanzaExcepcion() throws Exception {
-            Files.createDirectories(dir);
-            Files.createFile(fichero);
-            assertDoesNotThrow(() -> hu2(dir, fichero));
-        }
-    }
-
-    // =========================================================================
-    // HU3 - leer memes.txt
-    // =========================================================================
-
-    @Nested
-    @DisplayName("HU3 - Leer memes.txt")
-    class HU3Test {
-
-        /** Replica la lógica de hu3() usando una ruta inyectada. */
-        private ArrayList<String> leerMemes(Path ruta) throws Exception {
-            ArrayList<String> lista = new ArrayList<>(Files.readAllLines(ruta));
-            lista.removeIf(String::isBlank);
-            return lista;
-        }
-
-        @Test
-        @DisplayName("Lee correctamente todas las líneas no vacías")
-        void leeBulos() throws Exception {
-            Path memes = tempDir.resolve("memes.txt");
-            Files.writeString(memes, "Bulo 1\nBulo 2\nBulo 3\n");
-            ArrayList<String> resultado = leerMemes(memes);
-            assertEquals(3, resultado.size());
-            assertEquals("Bulo 1", resultado.get(0));
-            assertEquals("Bulo 3", resultado.get(2));
-        }
-
-        @Test
-        @DisplayName("Ignora líneas vacías")
-        void ignoraLineasVacias() throws Exception {
-            Path memes = tempDir.resolve("memes.txt");
-            Files.writeString(memes, "Bulo 1\n\n\nBulo 2\n");
-            assertEquals(2, leerMemes(memes).size());
-        }
-
-        @Test
-        @DisplayName("Devuelve lista vacía si el fichero está vacío")
-        void ficheroVacio() throws Exception {
-            Path memes = tempDir.resolve("memes.txt");
-            Files.createFile(memes);
-            assertTrue(leerMemes(memes).isEmpty());
-        }
-
-        @Test
-        @DisplayName("Lanza excepción si el fichero no existe")
-        void noExiste() {
-            assertThrows(Exception.class, () -> leerMemes(tempDir.resolve("no_existe.txt")));
-        }
-    }
-
-    // =========================================================================
-    // HU4 - leerRealidades
-    // =========================================================================
-
-    @Nested
-    @DisplayName("HU4 - Leer realidades.json")
-    class HU4Test {
-
-        /** Replica la lógica de leerRealidades() usando una ruta inyectada. */
-        private ArrayList<String> leerRealidades(Path ruta) throws Exception {
-            List<String> lineas = Files.readAllLines(ruta);
-            ArrayList<String> realidades = new ArrayList<>();
-            for (String linea : lineas) {
-                linea = linea.trim();
-                if (linea.contains("\"texto\"")) {
-                    int inicio         = linea.indexOf("\"texto\"") + "\"texto\"".length();
-                    int primerComilla  = linea.indexOf('"', inicio + 1) + 1;
-                    int segundaComilla = linea.indexOf('"', primerComilla);
-                    if (primerComilla > 0 && segundaComilla > primerComilla) {
-                        String texto = linea.substring(primerComilla, segundaComilla).trim();
-                        if (!texto.isBlank()) realidades.add(texto);
-                    }
+        for (int i = 0; i < totalEntradas - 1; i++) {
+            for (int j = 0; j < totalEntradas - 1 - i; j++) {
+                if (extraerPuntuacion(entradasRanking.get(j)) < extraerPuntuacion(entradasRanking.get(j + 1))) {
+                    String entradaTemporal = entradasRanking.get(j);
+                    entradasRanking.set(j, entradasRanking.get(j + 1));
+                    entradasRanking.set(j + 1, entradaTemporal);
                 }
             }
-            return realidades;
-        }
-
-        @Test
-        @DisplayName("Extrae los textos correctamente de un JSON válido")
-        void extraeTextos() throws Exception {
-            Path json = tempDir.resolve("realidades.json");
-            Files.writeString(json,
-                "[\n" +
-                "  { \"texto\": \"Brecha salarial del 18%\", \"fuente\": \"INE\" },\n" +
-                "  { \"texto\": \"80% de víctimas son mujeres\", \"fuente\": \"Interior\" }\n" +
-                "]\n");
-            ArrayList<String> resultado = leerRealidades(json);
-            assertEquals(2, resultado.size());
-            assertEquals("Brecha salarial del 18%", resultado.get(0));
-            assertEquals("80% de víctimas son mujeres", resultado.get(1));
-        }
-
-        @Test
-        @DisplayName("Devuelve lista vacía si no hay campos texto")
-        void sinCamposTexto() throws Exception {
-            Path json = tempDir.resolve("realidades.json");
-            Files.writeString(json, "[ { \"fuente\": \"INE\" } ]\n");
-            assertTrue(leerRealidades(json).isEmpty());
-        }
-
-        @Test
-        @DisplayName("Devuelve lista vacía con fichero vacío")
-        void ficheroVacio() throws Exception {
-            Path json = tempDir.resolve("realidades.json");
-            Files.createFile(json);
-            assertTrue(leerRealidades(json).isEmpty());
-        }
-
-        @Test
-        @DisplayName("Lanza excepción si el fichero no existe")
-        void noExiste() {
-            assertThrows(Exception.class, () -> leerRealidades(tempDir.resolve("no.json")));
         }
     }
 
-    // =========================================================================
-    // HU5 - seleccionarBuloAleatorio / mostrarBuloYRealidades
-    // =========================================================================
 
-    @Nested
-    @DisplayName("HU5 - Mostrar bulo aleatorio y lista de realidades")
-    class HU5Test {
+    /**
+     * Extrae la puntuación numérica de una línea del ranking.
+     *
+     * @param entradaRanking línea con formato {@code nombre;puntuacion}
+     * @return puntuación como {@code Integer}
+     */
+    public static Integer extraerPuntuacion(String entradaRanking) {
+        return Integer.parseInt(entradaRanking.split(";")[1].trim());
+    }
 
-        private Set<Integer> usados;
 
-        @BeforeEach
-        void setUp() {
-            usados = new HashSet<>();
-            // Limpiamos el estado estático de ProyectoMeme antes de cada test
-            ProyectoMeme.bulosUsados.clear();
+    /**
+     * Extrae el nombre del jugador de una línea del ranking.
+     *
+     * @param entradaRanking línea con formato {@code nombre;puntuacion}
+     * @return nombre del jugador
+     */
+    public static String extraerNombre(String entradaRanking) {
+        return entradaRanking.split(";")[0].trim();
+    }
+
+
+    /**
+     * Escribe en el fichero las tres primeras entradas de la lista
+     * (que debe estar ya ordenada de mayor a menor).
+     *
+     * <p>Si la lista tiene menos de 3 elementos se guardan todos.</p>
+     *
+     * @param ficheroRanking  ruta al fichero donde guardar el ranking
+     * @param entradasRanking lista ordenada de entradas del ranking
+     * @throws IOException si no se puede escribir el fichero
+     */
+    public static void guardarTop3(Path ficheroRanking, ArrayList<String> entradasRanking) throws IOException {
+
+        ArrayList<String> tresMejores = new ArrayList<>();
+
+        for (int i = 0; i < entradasRanking.size() && i < 3; i++) {
+            tresMejores.add(entradasRanking.get(i));
         }
 
-        /** Replica la lógica de seleccionarBuloAleatorio() con el Set inyectado. */
-        private int seleccionar(int total) {
-            if (usados.size() >= total) return -1;
-            Random r = new Random();
-            int indice;
-            do { indice = r.nextInt(total); } while (usados.contains(indice));
-            usados.add(indice);
-            return indice;
-        }
+        Files.write(ficheroRanking, tresMejores);
+    }
 
-        // --- seleccionarBuloAleatorio ---
 
-        @Test
-        @DisplayName("El índice devuelto está dentro del rango válido")
-        void indiceEnRango() {
-            int indice = seleccionar(5);
-            assertTrue(indice >= 0 && indice < 5);
-        }
+    // -------------------------------------------------------------------------
+    // HU10
+    // -------------------------------------------------------------------------
 
-        @Test
-        @DisplayName("No se repite ningún bulo en llamadas sucesivas")
-        void sinRepeticion() {
-            Set<Integer> vistos = new HashSet<>();
-            for (int i = 0; i < 5; i++) {
-                int indice = seleccionar(5);
-                assertFalse(vistos.contains(indice), "El bulo " + indice + " se ha repetido");
-                vistos.add(indice);
+    /**
+     * Muestra el ranking de las tres mejores puntuaciones guardadas en
+     * {@code resultados/mejores.txt} y se despide del jugador.
+     *
+     * <p>Si el fichero está vacío (nadie ha entrado en el top 3 todavía)
+     * lo indica con un mensaje.</p>
+     *
+     * @throws IOException si el fichero de mejores no se puede leer
+     */
+    public static void mostrarRankingYDespedirse() throws IOException {
+
+        Path ficheroMejores          = Paths.get("resultados/mejores.txt");
+        ArrayList<String> ranking    = leerMejores(ficheroMejores);
+
+        System.out.println("\n=== MEJORES PUNTUACIONES ===");
+
+        if (ranking.isEmpty()) {
+            System.out.println("Todavía no hay puntuaciones guardadas.");
+        } else {
+            for (int i = 0; i < ranking.size(); i++) {
+                String nombreJugador      = extraerNombre(ranking.get(i));
+                Integer puntuacionJugador = extraerPuntuacion(ranking.get(i));
+                System.out.println((i + 1) + ". " + nombreJugador + " - " + puntuacionJugador + "/5 puntos");
             }
         }
 
-        @Test
-        @DisplayName("Devuelve -1 cuando ya se usaron todos los bulos")
-        void devuelveMinusUnoSiAgotados() {
-            for (int i = 0; i < 3; i++) seleccionar(3);
-            assertEquals(-1, seleccionar(3));
-        }
-
-        @Test
-        @DisplayName("El índice seleccionado queda registrado como usado")
-        void indiceRegistrado() {
-            int indice = seleccionar(5);
-            assertTrue(usados.contains(indice));
-        }
-
-        @Test
-        @DisplayName("Funciona correctamente con un único bulo disponible")
-        void unSoloBulo() {
-            assertEquals(0, seleccionar(1));
-            assertEquals(-1, seleccionar(1));
-        }
-
-        // --- mostrarBuloYRealidades ---
-
-        @Test
-        @DisplayName("Muestra el bulo seleccionado y todas las realidades numeradas")
-        void muestraContenido() {
-            List<String> bulos      = List.of("Bulo A", "Bulo B");
-            List<String> realidades = List.of("Realidad 1", "Realidad 2", "Realidad 3");
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream original = System.out;
-            System.setOut(new PrintStream(baos));
-
-            int indice = ProyectoMeme.mostrarBuloYRealidades(bulos, realidades);
-
-            System.setOut(original);
-            String salida = baos.toString();
-
-            assertTrue(indice >= 0 && indice < bulos.size());
-            assertTrue(salida.contains(bulos.get(indice)));
-            assertTrue(salida.contains("1. Realidad 1"));
-            assertTrue(salida.contains("2. Realidad 2"));
-            assertTrue(salida.contains("3. Realidad 3"));
-        }
-
-        @Test
-        @DisplayName("Devuelve el índice del bulo mostrado")
-        void devuelveIndiceValido() {
-            List<String> bulos      = List.of("Bulo A", "Bulo B", "Bulo C");
-            List<String> realidades = List.of("Realidad 1");
-            int indice = ProyectoMeme.mostrarBuloYRealidades(bulos, realidades);
-            assertTrue(indice >= 0 && indice < bulos.size());
-        }
-
-        @Test
-        @DisplayName("Devuelve -1 si no quedan bulos disponibles")
-        void devuelveMinusUnoSinBulos() {
-            List<String> bulos      = List.of("Bulo A");
-            List<String> realidades = List.of("Realidad 1");
-
-            ProyectoMeme.mostrarBuloYRealidades(bulos, realidades); // consume el único bulo
-            int resultado = ProyectoMeme.mostrarBuloYRealidades(bulos, realidades);
-
-            assertEquals(-1, resultado);
-        }
-
-        @Test
-        @DisplayName("No repite bulos en llamadas sucesivas a mostrarBuloYRealidades")
-        void noRepiteBulos() {
-            List<String> bulos      = List.of("Bulo A", "Bulo B", "Bulo C");
-            List<String> realidades = List.of("Realidad 1");
-
-            Set<Integer> vistos = new HashSet<>();
-            for (int i = 0; i < bulos.size(); i++) {
-                int indice = ProyectoMeme.mostrarBuloYRealidades(bulos, realidades);
-                assertFalse(vistos.contains(indice), "El bulo " + indice + " se ha repetido");
-                vistos.add(indice);
-            }
-        }
+        System.out.println("\n¡Gracias por jugar a Bulo o Realidad!");
+        System.out.println("Recuerda contrastar siempre la información antes de compartirla.");
     }
 }
