@@ -18,22 +18,25 @@ import java.util.*;
 public class ProyectoMeme {
 
     /** Bulos leídos de {@code memes.txt}. */
-    public static ArrayList<String> bulos = new ArrayList<>();
+    static ArrayList<String> listaDeBulos = new ArrayList<>();
 
     /** Realidades leídas de {@code realidades.json}. */
-    public static ArrayList<String> realidades = new ArrayList<>();
+    static ArrayList<String> listaDeRealidades = new ArrayList<>();
 
     /** Relaciona el índice de cada bulo con el índice de su realidad correcta. */
-    public static HashMap<Integer, Integer> soluciones = new HashMap<>();
+    static HashMap<Integer, Integer> mapaSoluciones = new HashMap<>();
 
     /** Bulos que ya han salido en esta partida para no repetirlos. */
-    public static ArrayList<Integer> bulosUsados = new ArrayList<>();
+    static ArrayList<Integer> bulosUsados = new ArrayList<>();
 
     /** Puntos conseguidos en la partida actual. */
-    public static int puntos = 0;
+    static int puntuacionFinal = 0;
 
     /** Scanner para leer lo que escribe el jugador. */
-    public static Scanner teclado = new Scanner(System.in);
+    static Scanner teclado = new Scanner(System.in);
+    
+    /** Ruta donde se encuentra la carpeta datos (detectada en HU1) */
+    static Path rutaDatos = null;
 
     // ------------------------------------------------------------------
 
@@ -76,18 +79,29 @@ public class ProyectoMeme {
      * @return {@code true} si todo está bien; {@code false} si falta algo.
      */
     public static boolean existenFicheros() {
-        Path carpeta = Paths.get("..\\datos");
-
-        if (!Files.isDirectory(carpeta)) {
+        // Intentar con diferentes rutas posibles
+        Path[] rutasPosibles = {
+            Paths.get("datos"),                    // desde raíz del proyecto
+            Paths.get("../datos")                   // desde fuentes/ subiendo un nivel
+        };
+        
+        for (Path ruta : rutasPosibles) {
+            if (Files.isDirectory(ruta)) {
+                rutaDatos = ruta;
+                break;
+            }
+        }
+        
+        if (rutaDatos == null) {
             System.out.println("ERROR: no existe la carpeta 'datos'.");
             return false;
         }
 
-        Boolean todoOk = true;
-
+        boolean todoOk = true;
         String[] ficheros = {"memes.txt", "realidades.json", "soluciones.xml"};
+        
         for (String fichero : ficheros) {
-            if (Files.exists(carpeta.resolve(fichero))) {
+            if (Files.exists(rutaDatos.resolve(fichero))) {
                 System.out.println("OK: " + fichero);
             } else {
                 System.out.println("ERROR: falta " + fichero);
@@ -128,15 +142,15 @@ public class ProyectoMeme {
      * @throws IOException Si el fichero no puede leerse.
      */
     public static void cargarBulos() throws IOException {
-        List<String> lineas = Files.readAllLines(Paths.get("datos/memes.txt"));
+        List<String> lineas = Files.readAllLines(rutaDatos.resolve("memes.txt"));
 
         for (String linea : lineas) {
             if (!linea.isBlank()) {
-                bulos.add(linea);
+                listaDeBulos.add(linea);
             }
         }
 
-        System.out.println("Bulos cargados: " + bulos.size());
+        System.out.println("Bulos cargados: " + listaDeBulos.size());
     }
 
     // ------------------------------------------------------------------
@@ -150,22 +164,25 @@ public class ProyectoMeme {
      * @throws IOException Si el fichero no puede leerse.
      */
     public static void cargarRealidades() throws IOException {
-        List<String> lineas = Files.readAllLines(Paths.get("datos/realidades.json"));
+        List<String> lineas = Files.readAllLines(rutaDatos.resolve("realidades.json"));
 
         for (String linea : lineas) {
+            linea = linea.trim();
             if (!linea.contains("\"texto\"")) continue;
 
-            Integer inicio = linea.indexOf("\"texto\"") + "\"texto\"".length();
-            Integer abre   = linea.indexOf('"', inicio + 1) + 1;
-            Integer cierra = linea.indexOf('"', abre);
-            String texto = linea.substring(abre, cierra).trim();
-
-            if (!texto.isBlank()) {
-                realidades.add(texto);
+            int inicio = linea.indexOf("\"texto\"") + "\"texto\"".length();
+            int abre = linea.indexOf('"', inicio + 1) + 1;
+            int cierra = linea.indexOf('"', abre);
+            
+            if (abre > 0 && cierra > abre) {
+                String texto = linea.substring(abre, cierra).trim();
+                if (!texto.isBlank()) {
+                    listaDeRealidades.add(texto);
+                }
             }
         }
 
-        System.out.println("Realidades cargadas: " + realidades.size());
+        System.out.println("Realidades cargadas: " + listaDeRealidades.size());
     }
 
     // ------------------------------------------------------------------
@@ -179,30 +196,52 @@ public class ProyectoMeme {
      * @throws IOException Si el fichero no puede leerse.
      */
     public static void cargarSoluciones() throws IOException {
-        List<String> lineas = Files.readAllLines(Paths.get("datos/soluciones.xml"));
+        List<String> lineas = Files.readAllLines(rutaDatos.resolve("soluciones.xml"));
+        int contador = 0;
 
         for (String linea : lineas) {
-            if (!linea.contains("<solucion")) continue;
-
-            Integer indiceBulo     = leerAtributo(linea, "bulo");
-            Integer indiceRealidad = leerAtributo(linea, "realidad");
-            soluciones.put(indiceBulo, indiceRealidad);
+            linea = linea.trim();
+            if (linea.contains("<solucion")) {
+                try {
+                    Integer indiceBulo = leerAtributo(linea, "bulo");
+                    Integer indiceRealidad = leerAtributo(linea, "realidad");
+                    mapaSoluciones.put(indiceBulo, indiceRealidad);
+                    contador++;
+                } catch (NumberFormatException e) {
+                    System.out.println("Advertencia: línea XML ignorada - " + linea);
+                }
+            }
         }
 
-        System.out.println("Soluciones cargadas: " + soluciones.size());
+        System.out.println("Soluciones cargadas: " + contador);
     }
 
     /**
      * Extrae el valor entero de un atributo XML con formato {@code nombre="valor"}.
+     * Versión más robusta que maneja errores de formato.
      *
      * @param linea  Línea XML donde buscar.
      * @param nombre Nombre del atributo.
      * @return Valor del atributo como {@code Integer}.
+     * @throws NumberFormatException si no encuentra el atributo o el valor no es número
      */
     public static Integer leerAtributo(String linea, String nombre) {
-        Integer inicio = linea.indexOf(nombre + "=\"") + nombre.length() + 2;
-        Integer fin = linea.indexOf('"', inicio);
-        return Integer.parseInt(linea.substring(inicio, fin));
+        String busqueda = nombre + "=\"";
+        int inicio = linea.indexOf(busqueda);
+        
+        if (inicio == -1) {
+            throw new NumberFormatException("No se encontró el atributo: " + nombre);
+        }
+        
+        inicio += busqueda.length();
+        int fin = linea.indexOf('"', inicio);
+        
+        if (fin == -1) {
+            throw new NumberFormatException("Formato incorrecto para atributo: " + nombre);
+        }
+        
+        String valor = linea.substring(inicio, fin).trim();
+        return Integer.parseInt(valor);
     }
 
     // ------------------------------------------------------------------
@@ -214,7 +253,7 @@ public class ProyectoMeme {
      * pide la respuesta (HU6) y actualiza el marcador.
      */
     public static void jugarPartida() {
-        puntos = 0;
+        puntuacionFinal = 0;
         bulosUsados.clear();
 
         for (int ronda = 1; ronda <= 5; ronda++) {
@@ -225,15 +264,19 @@ public class ProyectoMeme {
 
             Integer respuesta = pedirRespuesta();
 
-            if (respuesta.equals(soluciones.get(indiceBulo))) {
-                System.out.println("Correcto!");
-                puntos++;
+            if (respuesta.equals(mapaSoluciones.get(indiceBulo))) {
+                System.out.println("¡Correcto!");
+                puntuacionFinal++;
             } else {
-                Integer correcta = soluciones.get(indiceBulo);
-                System.out.println("Incorrecto. La correcta era la " + (correcta + 1) + ".");
+                Integer correcta = mapaSoluciones.get(indiceBulo);
+                if (correcta != null) {
+                    System.out.println("Incorrecto. La correcta era la " + (correcta + 1) + ".");
+                } else {
+                    System.out.println("Incorrecto.");
+                }
             }
 
-            System.out.println("Marcador: " + puntos + "/" + ronda);
+            System.out.println("Marcador: " + puntuacionFinal + "/" + ronda);
 
             if (ronda < 5) {
                 System.out.println("Pulsa ENTER para continuar...");
@@ -249,10 +292,10 @@ public class ProyectoMeme {
      */
     public static Integer elegirBuloAlAzar() {
         Random azar = new Random();
-        Integer indice = azar.nextInt(bulos.size());
+        Integer indice = azar.nextInt(listaDeBulos.size());
 
         while (bulosUsados.contains(indice)) {
-            indice = azar.nextInt(bulos.size());
+            indice = azar.nextInt(listaDeBulos.size());
         }
 
         bulosUsados.add(indice);
@@ -265,11 +308,11 @@ public class ProyectoMeme {
      * @param indiceBulo Índice del bulo a mostrar.
      */
     public static void mostrarBuloYRealidades(Integer indiceBulo) {
-        System.out.println("BULO: " + bulos.get(indiceBulo));
+        System.out.println("BULO: " + listaDeBulos.get(indiceBulo));
         System.out.println("¿Qué realidad lo desmiente?");
 
-        for (int i = 0; i < realidades.size(); i++) {
-            System.out.println((i + 1) + ". " + realidades.get(i));
+        for (int i = 0; i < listaDeRealidades.size(); i++) {
+            System.out.println((i + 1) + ". " + listaDeRealidades.get(i));
         }
     }
 
@@ -281,11 +324,14 @@ public class ProyectoMeme {
     public static Integer pedirRespuesta() {
         Integer opcion = 0;
 
-        while (opcion < 1 || opcion > realidades.size()) {
-            System.out.print("Tu elección (1-" + realidades.size() + "): ");
+        while (opcion < 1 || opcion > listaDeRealidades.size()) {
+            System.out.print("Tu elección (1-" + listaDeRealidades.size() + "): ");
             try {
-                opcion = Integer.parseInt(teclado.nextLine().trim());
+                String entrada = teclado.nextLine().trim();
+                if (entrada.isEmpty()) continue;
+                opcion = Integer.parseInt(entrada);
             } catch (NumberFormatException e) {
+                System.out.println("Por favor, introduce un número válido.");
                 opcion = 0;
             }
         }
@@ -301,16 +347,16 @@ public class ProyectoMeme {
      * <b>HU8</b> – Muestra los puntos obtenidos y un mensaje según el resultado.
      */
     public static void mostrarPuntuacion() {
-        System.out.println("\n=== PUNTUACION FINAL: " + puntos + "/5 ===");
+        System.out.println("\n=== PUNTUACION FINAL: " + puntuacionFinal + "/5 ===");
 
-        if (puntos == 5) {
-            System.out.println("Perfecto, todo correcto!");
-        } else if (puntos >= 3) {
-            System.out.println("Bien, buena puntuacion!");
-        } else if (puntos >= 1) {
-            System.out.println("Puedes mejorar la proxima vez.");
+        if (puntuacionFinal == 5) {
+            System.out.println("¡Perfecto, todo correcto!");
+        } else if (puntuacionFinal >= 3) {
+            System.out.println("¡Bien, buena puntuación!");
+        } else if (puntuacionFinal >= 1) {
+            System.out.println("Puedes mejorar la próxima vez.");
         } else {
-            System.out.println("Animo, la proxima sera mejor.");
+            System.out.println("Ánimo, la próxima será mejor.");
         }
     }
 
@@ -325,35 +371,66 @@ public class ProyectoMeme {
      * @throws IOException Si el fichero no puede leerse o escribirse.
      */
     public static void guardarSiEsTop3() throws IOException {
-        // Leer el ranking actual como lista de "NOMBRE;PUNTOS"
+        Path rankingPath = Paths.get("resultados/mejores.txt");
+        
+        // Leer el ranking actual
         ArrayList<String> ranking = new ArrayList<>(
-            Files.readAllLines(Paths.get("resultados/mejores.txt"))
+            Files.readAllLines(rankingPath)
         );
         ranking.removeIf(String::isBlank);
 
-        // Comprobar si entra en el top 3 (el fichero ya está ordenado, la última es la peor)
-        if (ranking.size() >= 3) {
-            Integer peorPuntuacion = Integer.parseInt(ranking.get(2).split(";")[1].trim());
-            if (puntos <= peorPuntuacion) {
-                System.out.println("No has entrado en el top 3. Sigue intentandolo!");
-                return;
+        // Comprobar si entra en el top 3
+        boolean esTop3 = false;
+        
+        if (ranking.size() < 3) {
+            esTop3 = true;
+        } else {
+            // Obtener la puntuación más baja del top 3
+            int puntuacionMasBaja = Integer.MAX_VALUE;
+            for (String linea : ranking) {
+                String[] partes = linea.split(";");
+                if (partes.length == 2) {
+                    try {
+                        int pts = Integer.parseInt(partes[1].trim());
+                        if (pts < puntuacionMasBaja) {
+                            puntuacionMasBaja = pts;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignorar líneas mal formateadas
+                    }
+                }
+            }
+            
+            if (puntuacionFinal > puntuacionMasBaja) {
+                esTop3 = true;
             }
         }
 
+        if (!esTop3) {
+            System.out.println("No has entrado en el top 3. ¡Sigue intentándolo!");
+            return;
+        }
+
         // Pedir el nombre al jugador
-        System.out.println("Enhorabuena! Estas entre los tres mejores.");
+        System.out.println("¡Enhorabuena! Estás entre los tres mejores.");
         System.out.print("Escribe tu nombre: ");
         String nombre = teclado.nextLine().trim();
         if (nombre.isBlank()) {
-            nombre = "Anonimo";
+            nombre = "Anónimo";
         }
 
-        // Añadir la nueva entrada y ordenar de mayor a menor puntuación
-        ranking.add(nombre + ";" + puntos);
-        Collections.sort(ranking, (a, b) -> {
-            Integer puntosA = Integer.parseInt(a.split(";")[1].trim());
-            Integer puntosB = Integer.parseInt(b.split(";")[1].trim());
-            return puntosB - puntosA;
+        // Añadir la nueva entrada
+        ranking.add(nombre + ";" + puntuacionFinal);
+
+        // Ordenar de mayor a menor puntuación
+        ranking.sort((a, b) -> {
+            try {
+                int puntosA = Integer.parseInt(a.split(";")[1].trim());
+                int puntosB = Integer.parseInt(b.split(";")[1].trim());
+                return Integer.compare(puntosB, puntosA);
+            } catch (Exception e) {
+                return 0;
+            }
         });
 
         // Quedarse solo con los tres primeros
@@ -362,9 +439,8 @@ public class ProyectoMeme {
         }
 
         // Escribir el fichero actualizado
-        Files.writeString(Paths.get("resultados/mejores.txt"), String.join("\n", ranking) + "\n");
-
-        System.out.println("Guardado. Bien jugado, " + nombre + "!");
+        Files.write(rankingPath, ranking);
+        System.out.println("Guardado. ¡Bien jugado, " + nombre + "!");
     }
 
     // ------------------------------------------------------------------
@@ -380,9 +456,10 @@ public class ProyectoMeme {
         System.out.println("\n=== TOP 3 ===");
 
         List<String> lineas = Files.readAllLines(Paths.get("resultados/mejores.txt"));
-        Integer puesto = 1;
+        int puesto = 1;
 
         for (String linea : lineas) {
+            if (linea.isBlank()) continue;
             String[] partes = linea.trim().split(";");
             if (partes.length == 2) {
                 System.out.println(puesto + ". " + partes[0].trim() + " - " + partes[1].trim() + "/5");
@@ -391,9 +468,9 @@ public class ProyectoMeme {
         }
 
         if (puesto == 1) {
-            System.out.println("Todavia no hay puntuaciones.");
+            System.out.println("Todavía no hay puntuaciones.");
         }
 
-        System.out.println("\nGracias por jugar. Hasta la proxima!");
+        System.out.println("\n¡Gracias por jugar! Hasta la próxima!");
     }
 }
