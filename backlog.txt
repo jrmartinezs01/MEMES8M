@@ -7,8 +7,8 @@ HU5     ivan       terminado
 HU6     ivan       terminado
 HU7     alberto    terminado
 HU8     juanra     terminado
-HU9
-HU10
+HU9     Ivan       terminado
+HU10    Ivan       terminado
 
 TT1    alberto      terminado
 TT2    alberto      terminado
@@ -18,6 +18,6 @@ TT5    juanra       terminado
 TT6    juanra       terminado
 TT7    
 
-Manual de instalacion      Juanrra 
-Manual de usuario
-Manual del programador 
+Manual de instalacion      Juanrra  En proceso    
+Manual de usuario          Alberto  En proceso
+Manual del programador     Ivan     En proceso
