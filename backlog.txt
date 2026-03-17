@@ -18,6 +18,6 @@ TT5    juanra       terminado
 TT6    juanra       terminado
 TT7    Alberto      terminado
 
-Manual de instalacion      Juanrra  En proceso    
+Manual de instalacion      Juanrra  Terminado    
 Manual de usuario          Alberto  En proceso
-Manual del programador     Ivan     En proceso
+Manual del programador     Ivan     Terminado
