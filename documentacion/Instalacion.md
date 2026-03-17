@@ -51,7 +51,7 @@ MEMES8M/
 COMPILACIÓN (Recomendamos compilar los test primero y ejecutarlos)
 
 # Compilar incluyendo JUnit para los tests
-javac -cp "lib/junit-platform-console-standalone-1.9.3.jar" fuentes/*.java test/*.java
+javac -cp "lib/junit-platform-console-standalone-1.9.3.jar;." fuentes/ProyectoMeme.java test/ProyectoMemeTest.java
 
 # Compilar sin tests (solo el programa principal)
 javac fuentes/ProyectoMeme.java
@@ -59,7 +59,7 @@ javac fuentes/ProyectoMeme.java
 EJECUCIÓN
 
 # Ejecutar los tests
-java -jar lib/junit-platform-console-standalone-1.9.3.jar --class-path . --scan-class-path
+java -jar lib/junit-platform-console-standalone-1.9.3.jar --class-path ".;fuentes;test" --scan-class-path
 
 # Ejecutar el programa principal
 java -cp . fuentes.ProyectoMeme
