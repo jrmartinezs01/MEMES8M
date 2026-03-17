@@ -1,2 +1,3 @@
 ivan;1
 Anónimo;0
+ivan;0
