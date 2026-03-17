@@ -1,94 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<memes>
-
-    <meme>
-        <nombre>1</nombre>
-        <solucion>Eurostat y el INE confirman que en España las mujeres cobran de media un 14-19% menos por hora que los hombres. Existe brecha tanto en salario bruto como en pensiones.</solucion>
-        <otrasolucion>Los salarios en España son completamente iguales por ley desde 1978 y no existe ningún estudio que demuestre diferencias.</otrasolucion>
-        <otrasolucion>La brecha salarial solo existe en países en vías de desarrollo, no en Europa occidental.</otrasolucion>
-        <otrasolucion>Las mujeres ganan más que los hombres en sectores tecnológicos, lo que compensa cualquier diferencia global.</otrasolucion>
-        <otrasolucion>El INE dejó de medir diferencias salariales por género en 2015 al considerar que ya no existían.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>2</nombre>
-        <solucion>Incluso ajustando por horas, sector y puesto, persiste una brecha. Además, el trabajo a tiempo parcial es mayoritariamente femenino precisamente por la carga de cuidados no remunerados.</solucion>
-        <otrasolucion>El trabajo a tiempo parcial es una elección libre sin ninguna relación con la carga doméstica ni con el género.</otrasolucion>
-        <otrasolucion>Cuando se comparan puestos idénticos, las mujeres cobran exactamente lo mismo o más que los hombres en toda Europa.</otrasolucion>
-        <otrasolucion>La jornada parcial está distribuida de forma equitativa entre hombres y mujeres según Eurostat 2022.</otrasolucion>
-        <otrasolucion>Ajustar por sector elimina completamente la brecha salarial, según un informe de la OCDE de 2021.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>3</nombre>
-        <solucion>La violencia de género se refiere a asesinatos por pareja o expareja. En ese contexto concreto, las víctimas son mayoritariamente mujeres, según datos del CGPJ.</solucion>
-        <otrasolucion>El término violencia de género incluye todo tipo de agresiones físicas independientemente del vínculo entre agresor y víctima.</otrasolucion>
-        <otrasolucion>El CGPJ registra igual número de víctimas masculinas y femeninas en violencia de pareja desde 2018.</otrasolucion>
-        <otrasolucion>La violencia doméstica y la violencia de género son exactamente el mismo concepto jurídico en España.</otrasolucion>
-        <otrasolucion>Los hombres son estadísticamente las víctimas más frecuentes en cualquier tipo de violencia registrada en España.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>4</nombre>
-        <solucion>El CGPJ indica que las denuncias falsas por violencia de género rondan el 0,01%. Es uno de los delitos con menor tasa de falsedad, comparable o inferior a otros delitos comunes.</solucion>
-        <otrasolucion>Según el Ministerio del Interior, más del 40% de las denuncias por violencia de género son retiradas, lo que indica que son falsas.</otrasolucion>
-        <otrasolucion>El CGPJ estima que entre el 20% y el 30% de las denuncias de violencia de género no tienen base real.</otrasolucion>
-        <otrasolucion>Retirar una denuncia equivale legalmente a reconocer que era falsa, según el Código Penal español.</otrasolucion>
-        <otrasolucion>Las denuncias falsas en violencia de género tienen una tasa similar a la de otros delitos, alrededor del 15%.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>5</nombre>
-        <solucion>La definición académica y jurídica del feminismo es la igualdad de derechos entre hombres y mujeres. No hay ningún texto legal ni corriente mayoritaria feminista que defienda superioridad femenina.</solucion>
-        <otrasolucion>El feminismo radical, que es la corriente mayoritaria, defiende explícitamente la superioridad biológica de la mujer según sus propios manifiestos.</otrasolucion>
-        <otrasolucion>La Ley de Igualdad española de 2007 establece que las mujeres tienen derechos preferentes en el ámbito laboral y judicial.</otrasolucion>
-        <otrasolucion>El feminismo moderno rechaza la igualdad formal porque considera que es insuficiente y la sustituye por el concepto de dominación.</otrasolucion>
-        <otrasolucion>La ONU reconoce dos feminismos: el igualitario y el supremacista, siendo este último el predominante en Europa occidental.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>6</nombre>
-        <solucion>Las convocantes del 8M son plataformas feministas autónomas como la Comisión 8M. Que partidos se sumen no implica financiación ni organización por su parte.</solucion>
-        <otrasolucion>El Gobierno de España financia directamente la organización del 8M con fondos públicos desde 2018, según el BOE.</otrasolucion>
-        <otrasolucion>La Comisión 8M está registrada como asociación vinculada al Partido Socialista Obrero Español desde su fundación.</otrasolucion>
-        <otrasolucion>Todos los partidos políticos con representación parlamentaria participan en la organización oficial del 8M por ley.</otrasolucion>
-        <otrasolucion>El Ministerio de Igualdad es el convocante oficial de las manifestaciones del 8M según su propia página web.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>7</nombre>
-        <solucion>El INE muestra que las mujeres dedican casi el doble de horas al trabajo doméstico y de cuidados que los hombres, incluso cuando ambos trabajan a jornada completa.</solucion>
-        <otrasolucion>La Encuesta de Empleo del Tiempo del INE de 2020 refleja que hombres y mujeres dedican las mismas horas al hogar.</otrasolucion>
-        <otrasolucion>Los hombres dedican más horas totales al trabajo (remunerado más doméstico) que las mujeres según Eurostat.</otrasolucion>
-        <otrasolucion>El reparto de tareas del hogar es equitativo en todos los hogares donde ambos miembros trabajan a jornada completa.</otrasolucion>
-        <otrasolucion>El cuidado de hijos y mayores está distribuido de forma igualitaria en España desde la aprobación del permiso de paternidad en 2021.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>8</nombre>
-        <solucion>Que existan problemas que afectan a hombres (salud mental, custodia) no invalida la desigualdad estructural de género. El feminismo no niega esos problemas, simplemente analiza otro eje de desigualdad.</solucion>
-        <otrasolucion>El movimiento feminista ha declarado oficialmente que los problemas de salud mental masculina son consecuencia de privilegios no gestionados.</otrasolucion>
-        <otrasolucion>Hablar de desigualdad de género implica negar automáticamente cualquier problema que afecte específicamente a los hombres.</otrasolucion>
-        <otrasolucion>La perspectiva de género excluye por definición el estudio de desigualdades que afectan a hombres, según la RAE.</otrasolucion>
-        <otrasolucion>Los organismos de igualdad europeos han descartado incluir la salud mental masculina en sus políticas por no considerarla relevante.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>9</nombre>
-        <solucion>España ocupa el puesto 18 en el Índice Global de Brecha de Género del Foro Económico Mundial (2023). Hay desigualdad medible en salarios, representación política, violencia y cuidados.</solucion>
-        <otrasolucion>España figura en el puesto 3 mundial en igualdad de género según el Foro Económico Mundial, siendo uno de los países más igualitarios.</otrasolucion>
-        <otrasolucion>El Índice Global de Brecha de Género no mide desigualdad real sino percepción subjetiva de discriminación.</otrasolucion>
-        <otrasolucion>España alcanzó la igualdad plena de género en 2020 según un informe conjunto de la ONU y la Unión Europea.</otrasolucion>
-        <otrasolucion>El Foro Económico Mundial eliminó a España de su índice de brecha de género en 2022 por considerar que ya no era aplicable.</otrasolucion>
-    </meme>
-
-    <meme>
-        <nombre>10</nombre>
-        <solucion>La ONU declaró el 8 de marzo Día Internacional de la Mujer en 1977, pero la fecha tiene origen en huelgas obreras de principios del siglo XX. No es una creación ideológica reciente.</solucion>
-        <otrasolucion>El 8 de marzo fue creado en 1968 por el Partido Comunista Soviético como herramienta de propaganda política internacional.</otrasolucion>
-        <otrasolucion>La fecha del 8 de marzo fue elegida por la ONU en 2010 para conmemorar la aprobación de la Convención sobre los Derechos de la Mujer.</otrasolucion>
-        <otrasolucion>El Día Internacional de la Mujer fue instaurado por la Unión Europea en 1995 tras la Conferencia de Beijing.</otrasolucion>
-        <otrasolucion>El 8 de marzo conmemora un incendio en una fábrica textil de Nueva York en 1908 donde murieron 146 mujeres, hecho documentado históricamente.</otrasolucion>
-    </meme>
-
-</memes>
+<soluciones>
+    <solucion bulo="0" realidad="0"/>
+    <solucion bulo="1" realidad="1"/>
+    <solucion bulo="2" realidad="2"/>
+    <solucion bulo="3" realidad="3"/>
+    <solucion bulo="4" realidad="4"/>
+    <solucion bulo="5" realidad="5"/>
+    <solucion bulo="6" realidad="6"/>
+    <solucion bulo="7" realidad="7"/>
+    <solucion bulo="8" realidad="8"/>
+    <solucion bulo="9" realidad="9"/>
+</soluciones>
