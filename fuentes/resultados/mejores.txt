@@ -1,3 +1,8 @@
 <<<<<<< HEAD
 =======
 ivan;1
+<<<<<<< HEAD
+=======
+Anónimo;0
+ivan;0
+>>>>>>> 25d7f539060103dbfc34afb42a9960954dafe16c
